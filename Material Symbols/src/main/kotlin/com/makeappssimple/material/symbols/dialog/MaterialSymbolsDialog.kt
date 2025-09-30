@@ -1,0 +1,709 @@
+@file:Suppress("UnstableApiUsage")
+
+package com.makeappssimple.material.symbols.dialog
+
+import com.android.tools.idea.projectsystem.SourceProviderManager
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.modules
+import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.Messages
+import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
+import com.intellij.ui.CheckBoxList
+import com.intellij.ui.SearchTextField
+import com.intellij.ui.components.CheckBox
+import com.intellij.ui.components.Label
+import com.intellij.ui.components.Panel
+import com.intellij.util.SVGLoader
+import com.makeappssimple.material.symbols.model.MaterialSymbol
+import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
+import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
+import com.makeappssimple.material.symbols.model.MaterialSymbolsStyle
+import com.makeappssimple.material.symbols.model.MaterialSymbolsWeight
+import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
+import java.awt.BorderLayout
+import java.awt.Component
+import java.awt.Dimension
+import java.awt.FlowLayout
+import java.awt.Font
+import java.awt.Graphics
+import java.awt.Image
+import java.awt.event.ItemEvent
+import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
+import javax.swing.BorderFactory
+import javax.swing.Icon
+import javax.swing.JCheckBox
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JList
+import javax.swing.JPanel
+import javax.swing.JProgressBar
+import javax.swing.JScrollPane
+import javax.swing.ListCellRenderer
+import javax.swing.ListSelectionModel
+import javax.swing.event.DocumentEvent
+import javax.swing.event.DocumentListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
+import kotlinx.coroutines.withContext
+import org.gradle.configurationcache.extensions.capitalized
+import org.jetbrains.android.facet.AndroidFacet
+
+private const val dialogTitle = "Material Symbols"
+
+class MaterialSymbolsDialog(
+    private val project: Project,
+) : DialogWrapper(project) {
+    // region coroutines
+    private val coroutineScope = CoroutineScope(
+        context = SupervisorJob() + Dispatchers.Swing,
+    )
+    // endregion
+
+    // region data
+    private val viewModel = MaterialSymbolsDialogViewModel()
+    private val fonts = mutableMapOf<MaterialSymbolsStyle, Font>()
+    private val iconCache = ConcurrentHashMap<String, Image>()
+    // endregion
+
+    // region UI elements
+    private val progressBar = JProgressBar()
+    private val searchTextField = SearchTextField()
+    private val listPanel = Panel(
+        layout = BorderLayout(),
+    )
+    private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
+    // endregion
+
+    init {
+        init()
+        initUI()
+        fetchData()
+    }
+
+    override fun createCenterPanel(): JComponent {
+        return Panel(
+            layout = BorderLayout(),
+        ).apply {
+            minimumSize = Dimension(
+                700,
+                600,
+            )
+            add(
+                createOptionsPanel(),
+                BorderLayout.NORTH,
+            )
+            add(
+                createContentPanel(),
+                BorderLayout.CENTER,
+            )
+        }
+    }
+
+    override fun doOKAction() {
+        val drawableDirectory: PsiDirectory = getDrawableDirectory() ?: return
+        for (selectedMaterialSymbol in viewModel.selectedMaterialSymbols) {
+            try {
+                val fileName = viewModel.getFileName(
+                    materialSymbol = selectedMaterialSymbol,
+                )
+                WriteCommandAction.runWriteCommandAction(
+                    project,
+                ) {
+                    val drawableFile: PsiFile = drawableDirectory.createFile(
+                        fileName,
+                    )
+                    downloadDrawableFile(
+                        drawableFile = drawableFile,
+                        drawableResourceFileContent = viewModel.getDrawableResourceFileContent(
+                            materialSymbol = selectedMaterialSymbol,
+                        ),
+                    )
+                }
+            } catch (
+                exception: Exception,
+            ) {
+                hideProgressBar()
+                showErrorDialog(
+                    message = "Failed to download the icons: ${exception.message}",
+                )
+                close(
+                    CLOSE_EXIT_CODE,
+                )
+            }
+        }
+        super.doOKAction()
+    }
+
+    private fun getDrawableDirectory(): PsiDirectory? {
+        val androidFacet = project.modules.firstNotNullOfOrNull {
+            AndroidFacet.getInstance(
+                it,
+            )
+        }
+        if (androidFacet == null) {
+            showErrorDialog(
+                message = "Android facet not found!",
+            )
+            return null
+        }
+
+        val sourceProvidersManager = SourceProviderManager.getInstance(
+            androidFacet,
+        )
+        val resourceDirectoryFile = sourceProvidersManager.sources.resDirectories.firstOrNull()
+        if (resourceDirectoryFile == null) {
+            showErrorDialog(
+                message = "Resource directory not found.",
+            )
+            return null
+        }
+
+        val psiManager = PsiManager.getInstance(
+            project,
+        )
+        val resourceDirectory = psiManager.findDirectory(
+            resourceDirectoryFile,
+        )
+        if (resourceDirectory == null) {
+            showErrorDialog(
+                message = "Could not find resource directory.",
+            )
+            return null
+        }
+
+        var drawableDirectory: PsiDirectory? = null
+        WriteCommandAction.runWriteCommandAction(
+            project,
+        ) {
+            drawableDirectory = resourceDirectory.findSubdirectory(
+                "drawable",
+            ) ?: resourceDirectory.createSubdirectory(
+                "drawable",
+            )
+        }
+        if (drawableDirectory == null) {
+            showErrorDialog(
+                message = "Could not find or create drawable directory.",
+            )
+            return null
+        }
+        return drawableDirectory
+    }
+
+    override fun dispose() {
+        super.dispose()
+        viewModel.dispose()
+        coroutineScope.cancel()
+    }
+
+    private fun createOptionsPanel(): JPanel {
+        return JPanel(
+            FlowLayout(
+                FlowLayout.LEFT,
+            ),
+        ).apply {
+            // region filled
+            val fillCheckBox = CheckBox(
+                text = "Filled",
+            )
+            fillCheckBox.isSelected = viewModel.selectedFill
+            fillCheckBox.addActionListener { actionEvent ->
+                viewModel.selectedFill = (actionEvent.source as JCheckBox).isSelected
+                onOptionsUpdated()
+            }
+            add(fillCheckBox)
+            // endregion
+
+            // TODO(Abhi): Icon testing
+            /*
+            val homeIcon = RemoteUrlIcon(
+                iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/home/gradN25fill1/48px.svg",
+                iconCache = iconCache,
+                coroutineScope = coroutineScope,
+            )
+            val dummyCheckbox = JCheckBox()
+            dummyCheckbox.text = "Home"
+            dummyCheckbox.icon = homeIcon
+            val dummyLabel = JLabel(
+                homeIcon
+            )
+            add(dummyCheckbox)
+            */
+
+            // region style
+            add(
+                Label(
+                    text = "Style:",
+                ),
+            )
+            val styleComboBox = ComboBox(
+                MaterialSymbolsStyle.values(),
+            )
+            styleComboBox.selectedItem = viewModel.selectedStyle
+            styleComboBox.addItemListener { itemEvent ->
+                if (itemEvent.stateChange == ItemEvent.SELECTED) {
+                    viewModel.selectedStyle = itemEvent.item as MaterialSymbolsStyle
+                    onOptionsUpdated()
+                }
+            }
+            add(styleComboBox)
+            // endregion
+
+            // region weight
+            add(
+                Label(
+                    text = "Weight:",
+                ),
+            )
+            val weightComboBox = ComboBox(
+                MaterialSymbolsWeight.values(),
+            )
+            weightComboBox.selectedItem = viewModel.selectedWeight
+            weightComboBox.addItemListener { itemEvent ->
+                if (itemEvent.stateChange == ItemEvent.SELECTED) {
+                    viewModel.selectedWeight = itemEvent.item as MaterialSymbolsWeight
+                    onOptionsUpdated()
+                }
+            }
+            add(weightComboBox)
+            // endregion
+
+            // region grade
+            add(
+                Label(
+                    text = "Grade:",
+                ),
+            )
+            val gradeComboBox = ComboBox(
+                MaterialSymbolsGrade.values(),
+            )
+            gradeComboBox.selectedItem = viewModel.selectedGrade
+            gradeComboBox.addItemListener { itemEvent ->
+                if (itemEvent.stateChange == ItemEvent.SELECTED) {
+                    viewModel.selectedGrade = itemEvent.item as MaterialSymbolsGrade
+                    onOptionsUpdated()
+                }
+            }
+            add(gradeComboBox)
+            // endregion
+
+            // region size
+            add(
+                Label(
+                    text = "Size:",
+                ),
+            )
+            val sizeComboBox = ComboBox(
+                MaterialSymbolsSize.values(),
+            )
+            sizeComboBox.selectedItem = viewModel.selectedSize
+            sizeComboBox.addItemListener { itemEvent ->
+                if (itemEvent.stateChange == ItemEvent.SELECTED) {
+                    viewModel.selectedSize = itemEvent.item as MaterialSymbolsSize
+                    onOptionsUpdated()
+                }
+            }
+            add(sizeComboBox)
+            // endregion
+        }
+    }
+
+    private fun createContentPanel(): JPanel {
+        return Panel(
+            layout = BorderLayout(),
+        ).apply {
+            add(
+                searchTextField,
+                BorderLayout.NORTH,
+            )
+            add(
+                listPanel,
+                BorderLayout.CENTER,
+            )
+        }
+    }
+
+    private fun initUI() {
+        title = dialogTitle
+        isOKActionEnabled = false
+        progressBar.isIndeterminate = true
+        loadFonts()
+
+        materialSymbolCheckBoxList.selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
+        materialSymbolCheckBoxList.layoutOrientation = JList.HORIZONTAL_WRAP
+        materialSymbolCheckBoxList.visibleRowCount = -1
+        materialSymbolCheckBoxList.fixedCellWidth = 140
+        materialSymbolCheckBoxList.fixedCellHeight = 80
+
+        materialSymbolCheckBoxList.cellRenderer = MyCellRenderer(
+            list = materialSymbolCheckBoxList,
+            viewModel = viewModel,
+            iconCache = iconCache,
+            coroutineScope = coroutineScope,
+        )
+        initListeners()
+    }
+
+    private fun initListeners() {
+        materialSymbolCheckBoxList.setCheckBoxListListener { index, isChecked ->
+            materialSymbolCheckBoxList.getItemAt(index)?.let {
+                if (isChecked) {
+                    viewModel.selectedMaterialSymbols.add(
+                        element = it,
+                    )
+                } else {
+                    viewModel.selectedMaterialSymbols.remove(
+                        element = it,
+                    )
+                }
+            }
+            isOKActionEnabled = viewModel.selectedMaterialSymbols.isNotEmpty()
+        }
+        searchTextField.addDocumentListener(
+            object : DocumentListener {
+                override fun insertUpdate(
+                    e: DocumentEvent?,
+                ) {
+                    filterMaterialSymbols()
+                }
+
+                override fun removeUpdate(
+                    e: DocumentEvent?,
+                ) {
+                    filterMaterialSymbols()
+                }
+
+                override fun changedUpdate(
+                    e: DocumentEvent?,
+                ) {
+                    filterMaterialSymbols()
+                }
+            },
+        )
+    }
+
+    private fun fetchData() {
+        showProgressBar()
+        coroutineScope.launch {
+            try {
+                viewModel.getAllIcons()
+                viewModel.allMaterialSymbols.forEach { materialSymbol ->
+                    materialSymbolCheckBoxList.addItem(
+                        materialSymbol,
+                        materialSymbol.title,
+                        false,
+                    )
+                }
+                val scrollPane = JScrollPane(
+                    materialSymbolCheckBoxList,
+                ).apply {
+                    border = BorderFactory.createEmptyBorder()
+                }
+                addToListPanelCenter(
+                    component = scrollPane,
+                )
+                hideProgressBar()
+                listPanel.revalidate()
+                listPanel.repaint()
+            } catch (
+                exception: Exception,
+            ) {
+                hideProgressBar()
+                showErrorDialog(
+                    message = "Failed to load icons: ${exception.message}",
+                )
+                close(
+                    CLOSE_EXIT_CODE,
+                )
+            }
+        }
+    }
+
+    private fun filterMaterialSymbols() {
+        val selectedMaterialSymbolsSet = viewModel.selectedMaterialSymbols.toSet()
+        val filteredMaterialSymbols = if (searchTextField.text.isBlank()) {
+            viewModel.allMaterialSymbols
+        } else {
+            viewModel.allMaterialSymbols.filter { materialSymbol ->
+                materialSymbol.title.contains(
+                    other = searchTextField.text,
+                    ignoreCase = true,
+                )
+            }
+        }
+        materialSymbolCheckBoxList.clear()
+        filteredMaterialSymbols.forEach { filteredMaterialSymbol ->
+            materialSymbolCheckBoxList.addItem(
+                filteredMaterialSymbol,
+                filteredMaterialSymbol.title,
+                selectedMaterialSymbolsSet.contains(
+                    element = filteredMaterialSymbol,
+                ),
+            )
+        }
+    }
+
+    private fun downloadDrawableFile(
+        drawableFile: PsiFile,
+        drawableResourceFileContent: String,
+    ) {
+        try {
+            WriteCommandAction.runWriteCommandAction(
+                project,
+            ) {
+                val psiDocumentManager = PsiDocumentManager.getInstance(
+                    project,
+                )
+                val document = psiDocumentManager.getDocument(
+                    drawableFile,
+                )
+                if (document != null) {
+                    document.setText(
+                        drawableResourceFileContent,
+                    )
+                    psiDocumentManager.commitDocument(
+                        document,
+                    )
+                }
+                drawableFile.virtualFile?.let {
+                    FileEditorManager.getInstance(
+                        project,
+                    ).openFile(
+                        it,
+                        true,
+                    )
+                }
+            }
+        } catch (
+            exception: Exception,
+        ) {
+            showErrorDialog(
+                message = "Error downloading or saving file: ${exception.message}",
+            )
+        }
+    }
+
+    private fun addToListPanelCenter(
+        component: Component,
+    ) {
+        listPanel.add(
+            component,
+            BorderLayout.CENTER,
+        )
+    }
+
+    private fun onOptionsUpdated() {
+        materialSymbolCheckBoxList.repaint()
+    }
+
+    private fun loadFonts() {
+        MaterialSymbolsStyle.entries.forEach { style ->
+            val fontPath = "/fonts/MaterialSymbols${style.value.capitalized()}.ttf"
+            try {
+                val inputStream = javaClass.getResourceAsStream(
+                    fontPath,
+                )
+                if (inputStream != null) {
+                    fonts[style] = Font.createFont(
+                        Font.TRUETYPE_FONT,
+                        inputStream,
+                    )
+                } else {
+                    showErrorDialog(
+                        message = "Font not found: $fontPath",
+                    )
+                }
+            } catch (
+                exception: Exception,
+            ) {
+                showErrorDialog(
+                    message = "Error loading font: $fontPath ${exception.localizedMessage}",
+                )
+            }
+        }
+    }
+
+    // region error dialog
+    private fun showErrorDialog(
+        message: String,
+    ) {
+        Messages.showErrorDialog(
+            project,
+            message,
+            "Error",
+        )
+    }
+    // endregion
+
+    // region progressbar
+    private fun showProgressBar() {
+        addToListPanelCenter(
+            component = progressBar,
+        )
+    }
+
+    private fun hideProgressBar() {
+        listPanel.remove(
+            progressBar,
+        )
+    }
+    // endregion
+
+    private class MyCellRenderer(
+        private val list: CheckBoxList<MaterialSymbol>,
+        private val viewModel: MaterialSymbolsDialogViewModel,
+        private val iconCache: ConcurrentHashMap<String, Image>,
+        private val coroutineScope: CoroutineScope,
+    ) : ListCellRenderer<JCheckBox> {
+        private val panel = JPanel(BorderLayout(0, 2))
+        private val checkBox = JCheckBox()
+        private val iconLabel = JLabel()
+        private val textLabel = JLabel()
+
+        init {
+            val topPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+            topPanel.add(checkBox)
+            topPanel.isOpaque = false
+
+            iconLabel.horizontalAlignment = JLabel.CENTER
+            textLabel.horizontalAlignment = JLabel.CENTER
+            textLabel.verticalAlignment = JLabel.CENTER
+
+            val centerPanel = JPanel(BorderLayout())
+            centerPanel.add(iconLabel, BorderLayout.NORTH)
+            centerPanel.add(textLabel, BorderLayout.CENTER)
+            centerPanel.isOpaque = false
+
+            panel.add(topPanel, BorderLayout.NORTH)
+            panel.add(centerPanel, BorderLayout.CENTER)
+            panel.border = BorderFactory.createEmptyBorder(2, 2, 2, 2)
+        }
+
+        override fun getListCellRendererComponent(
+            list: JList<out JCheckBox?>,
+            value: JCheckBox?,
+            index: Int,
+            isSelected: Boolean,
+            cellHasFocus: Boolean,
+        ): Component {
+            val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
+            if (materialSymbol != null && value != null) {
+                checkBox.isSelected = value.isSelected
+
+                iconLabel.icon = RemoteUrlIcon(
+                    iconUrl = viewModel.getIconUrl(
+                        materialSymbol = materialSymbol,
+                    ),
+                    iconCache = iconCache,
+                    coroutineScope = coroutineScope,
+                    list = this.list,
+                    cellIndex = index,
+                )
+
+                val cellWidth = list.fixedCellWidth
+                textLabel.text = if (cellWidth > 0) {
+                    "<html><div style='text-align: center; width: ${cellWidth - 20}px;'>${materialSymbol.title}</div></html>"
+                } else {
+                    materialSymbol.title
+                }
+            }
+
+            if (isSelected) {
+                panel.background = list.selectionBackground
+                textLabel.foreground = list.selectionForeground
+            } else {
+                panel.background = list.background
+                textLabel.foreground = list.foreground
+            }
+
+            checkBox.background = panel.background
+
+            panel.isOpaque = true
+            return panel
+        }
+    }
+
+    private class RemoteUrlIcon(
+        private val iconUrl: String,
+        private val iconCache: ConcurrentHashMap<String, Image>,
+        private val coroutineScope: CoroutineScope,
+        private val list: CheckBoxList<MaterialSymbol>,
+        private val cellIndex: Int,
+    ) : Icon {
+        companion object {
+            private val LOG = Logger.getInstance(RemoteUrlIcon::class.java)
+            private val loadingUrls = ConcurrentHashMap.newKeySet<String>()
+            private val waitingCells = ConcurrentHashMap<String, MutableSet<Pair<CheckBoxList<MaterialSymbol>, Int>>>()
+        }
+
+        override fun paintIcon(
+            c: Component,
+            g: Graphics,
+            x: Int,
+            y: Int,
+        ) {
+            val image = iconCache[iconUrl]
+            if (image != null) {
+                g.drawImage(image, x, y, c)
+            } else {
+                waitingCells.computeIfAbsent(iconUrl) { ConcurrentHashMap.newKeySet() }.add(list to cellIndex)
+                coroutineScope.launch {
+                    loadImage()
+                }
+            }
+        }
+
+        private suspend fun loadImage() {
+            if (!loadingUrls.add(iconUrl)) {
+                return // Already loading
+            }
+
+            LOG.error("Abhi: Loading image: $iconUrl")
+            try {
+                val loadedImage = withContext(
+                    context = Dispatchers.IO,
+                ) {
+                    SVGLoader.load(
+                        URL(iconUrl),
+                        1.0f
+                    )
+                }
+                iconCache[iconUrl] = loadedImage
+                LOG.error("Abhi: Successfully loaded: $iconUrl")
+            } catch (e: Exception) {
+                LOG.error("Abhi: Error loading icon: $iconUrl", e)
+            } finally {
+                loadingUrls.remove(iconUrl)
+                withContext(
+                    context = Dispatchers.Swing,
+                ) {
+                    waitingCells.remove(
+                        iconUrl,
+                    )?.forEach { (targetList, targetIndex) ->
+                        targetList.repaint(targetList.getCellBounds(targetIndex, targetIndex))
+                    }
+                }
+            }
+        }
+
+        override fun getIconWidth(): Int {
+            return iconCache[iconUrl]?.getWidth(null) ?: 48 // Default width
+        }
+
+        override fun getIconHeight(): Int {
+            return iconCache[iconUrl]?.getHeight(null) ?: 48 // Default height
+        }
+    }
+}
