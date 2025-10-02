@@ -42,6 +42,7 @@ import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.ListCellRenderer
 import javax.swing.ListSelectionModel
+import javax.swing.SwingConstants
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import kotlinx.coroutines.CoroutineScope
@@ -319,8 +320,6 @@ public class MaterialSymbolsDialog(
         materialSymbolCheckBoxList.selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
         materialSymbolCheckBoxList.layoutOrientation = JList.HORIZONTAL_WRAP
         materialSymbolCheckBoxList.visibleRowCount = -1
-        materialSymbolCheckBoxList.fixedCellWidth = 140
-        materialSymbolCheckBoxList.fixedCellHeight = 80
 
         materialSymbolCheckBoxList.cellRenderer = MyCellRenderer(
             list = materialSymbolCheckBoxList,
@@ -515,28 +514,41 @@ public class MaterialSymbolsDialog(
         private val iconCache: ConcurrentHashMap<String, Icon>,
         private val coroutineScope: CoroutineScope,
     ) : ListCellRenderer<JCheckBox> {
-        private val panel = JPanel(BorderLayout(0, 2))
+        private val panel = JPanel(BorderLayout())
         private val checkBox = JCheckBox()
         private val iconLabel = JLabel()
         private val textLabel = JLabel()
+        private val contentPanel = JPanel(BorderLayout())
 
         init {
-            val topPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
-            topPanel.add(checkBox)
-            topPanel.isOpaque = false
+            checkBox.verticalAlignment = SwingConstants.CENTER
+            checkBox.horizontalAlignment = SwingConstants.CENTER
+            checkBox.border = BorderFactory.createEmptyBorder(16, 16, 16, 16)
 
-            iconLabel.horizontalAlignment = JLabel.CENTER
-            textLabel.horizontalAlignment = JLabel.CENTER
-            textLabel.verticalAlignment = JLabel.CENTER
+            iconLabel.verticalAlignment = SwingConstants.CENTER
+            iconLabel.horizontalAlignment = SwingConstants.CENTER
+            val iconSize = 60
+            val iconDimension = Dimension(iconSize, iconSize)
+            iconLabel.preferredSize = iconDimension
+            iconLabel.minimumSize = iconDimension
+            iconLabel.maximumSize = iconDimension
+            iconLabel.size = iconDimension
 
-            val centerPanel = JPanel(BorderLayout())
-            centerPanel.add(iconLabel, BorderLayout.NORTH)
-            centerPanel.add(textLabel, BorderLayout.CENTER)
-            centerPanel.isOpaque = false
+            textLabel.verticalAlignment = SwingConstants.CENTER
+            textLabel.horizontalAlignment = SwingConstants.LEFT
+            textLabel.border = BorderFactory.createEmptyBorder(4, 16, 4, 16)
 
-            panel.add(topPanel, BorderLayout.NORTH)
-            panel.add(centerPanel, BorderLayout.CENTER)
-            panel.border = BorderFactory.createEmptyBorder(2, 2, 2, 2)
+            contentPanel.add(iconLabel, BorderLayout.WEST)
+            contentPanel.add(textLabel, BorderLayout.CENTER)
+
+            val cellDimension = Dimension(320, 60)
+            panel.preferredSize = cellDimension
+            panel.minimumSize = cellDimension
+            panel.maximumSize = cellDimension
+            panel.size = cellDimension
+
+            panel.add(checkBox, BorderLayout.WEST)
+            panel.add(contentPanel, BorderLayout.CENTER)
         }
 
         override fun getListCellRendererComponent(
@@ -549,7 +561,6 @@ public class MaterialSymbolsDialog(
             val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
             if (materialSymbol != null && value != null) {
                 checkBox.isSelected = value.isSelected
-
                 iconLabel.icon = RemoteUrlIcon(
                     iconUrl = viewModel.getIconUrl(
                         materialSymbol = materialSymbol,
@@ -559,20 +570,16 @@ public class MaterialSymbolsDialog(
                     list = this.list,
                     cellIndex = index,
                 )
-
-                val cellWidth = list.fixedCellWidth
-                textLabel.text = if (cellWidth > 0) {
-                    "<html><div style='text-align: center; width: ${cellWidth - 20}px;'>${materialSymbol.title}</div></html>"
-                } else {
-                    materialSymbol.title
-                }
+                textLabel.text = "<html>${materialSymbol.title}</html>"
             }
 
             if (isSelected) {
                 panel.background = list.selectionBackground
+                contentPanel.background = list.selectionBackground
                 textLabel.foreground = list.selectionForeground
             } else {
                 panel.background = list.background
+                contentPanel.background = list.background
                 textLabel.foreground = list.foreground
             }
 
@@ -637,25 +644,32 @@ public class MaterialSymbolsDialog(
                 exception: Exception,
             ) {
             } finally {
-                loadingUrls.remove(iconUrl)
+                loadingUrls.remove(
+                    iconUrl,
+                )
                 withContext(
                     context = Dispatchers.Swing,
                 ) {
                     waitingCells.remove(
                         iconUrl,
                     )?.forEach { (targetList, targetIndex) ->
-                        targetList.repaint(targetList.getCellBounds(targetIndex, targetIndex))
+                        targetList.repaint(
+                            targetList.getCellBounds(
+                                targetIndex,
+                                targetIndex,
+                            ),
+                        )
                     }
                 }
             }
         }
 
         override fun getIconWidth(): Int {
-            return 6 // iconCache[iconUrl]?.iconWidth ?: 32 // Default width
+            return iconCache[iconUrl]?.iconWidth ?: 60
         }
 
         override fun getIconHeight(): Int {
-            return 6 // iconCache[iconUrl]?.iconHeight ?: 32 // Default height
+            return iconCache[iconUrl]?.iconHeight ?: 60
         }
     }
 }
