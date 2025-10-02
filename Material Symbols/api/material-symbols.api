@@ -1,0 +1,9 @@
+public final class com/makeappssimple/material/symbols/action/MaterialSymbolsAction : com/intellij/openapi/actionSystem/AnAction {
+	public fun <init> ()V
+	public fun actionPerformed (Lcom/intellij/openapi/actionSystem/AnActionEvent;)V
+}
+
+public final class com/makeappssimple/material/symbols/dialog/MaterialSymbolsDialog : com/intellij/openapi/ui/DialogWrapper {
+	public fun <init> (Lcom/intellij/openapi/project/Project;)V
+}
+
