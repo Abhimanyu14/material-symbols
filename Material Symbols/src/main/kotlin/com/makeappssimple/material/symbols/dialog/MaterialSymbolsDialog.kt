@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package com.makeappssimple.material.symbols.dialog
 
 import com.android.tools.idea.projectsystem.SourceProviderManager
@@ -224,22 +222,6 @@ public class MaterialSymbolsDialog(
             }
             add(fillCheckBox)
             // endregion
-
-            // TODO(Abhi): Icon testing
-            /*
-            val homeIcon = RemoteUrlIcon(
-                iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/home/gradN25fill1/48px.svg",
-                iconCache = iconCache,
-                coroutineScope = coroutineScope,
-            )
-            val dummyCheckbox = JCheckBox()
-            dummyCheckbox.text = "Home"
-            dummyCheckbox.icon = homeIcon
-            val dummyLabel = JLabel(
-                homeIcon
-            )
-            add(dummyCheckbox)
-            */
 
             // region style
             add(
