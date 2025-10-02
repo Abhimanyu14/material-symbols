@@ -662,7 +662,9 @@ public class MaterialSymbolsDialog(
                     )
                 }
                 iconCache[iconUrl] = loadedImage
-            } catch (exception: Exception) {
+            } catch (
+                exception: Exception,
+            ) {
             } finally {
                 loadingUrls.remove(iconUrl)
                 withContext(
