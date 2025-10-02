@@ -28,7 +28,6 @@ import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.awt.Font
 import java.awt.Graphics
 import java.awt.Image
 import java.awt.event.ItemEvent
@@ -54,7 +53,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withContext
-import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.android.facet.AndroidFacet
 
 private const val dialogTitle = "Material Symbols"
@@ -70,7 +68,6 @@ public class MaterialSymbolsDialog(
 
     // region data
     private val viewModel = MaterialSymbolsDialogViewModel()
-    private val fonts = mutableMapOf<MaterialSymbolsStyle, Font>()
     private val iconCache = ConcurrentHashMap<String, Image>()
     // endregion
 
@@ -320,7 +317,6 @@ public class MaterialSymbolsDialog(
         title = dialogTitle
         isOKActionEnabled = false
         progressBar.isIndeterminate = true
-        loadFonts()
 
         materialSymbolCheckBoxList.selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
         materialSymbolCheckBoxList.layoutOrientation = JList.HORIZONTAL_WRAP
@@ -487,33 +483,6 @@ public class MaterialSymbolsDialog(
 
     private fun onOptionsUpdated() {
         materialSymbolCheckBoxList.repaint()
-    }
-
-    private fun loadFonts() {
-        MaterialSymbolsStyle.entries.forEach { style ->
-            val fontPath = "/fonts/MaterialSymbols${style.value.capitalized()}.ttf"
-            try {
-                val inputStream = javaClass.getResourceAsStream(
-                    fontPath,
-                )
-                if (inputStream != null) {
-                    fonts[style] = Font.createFont(
-                        Font.TRUETYPE_FONT,
-                        inputStream,
-                    )
-                } else {
-                    showErrorDialog(
-                        message = "Font not found: $fontPath",
-                    )
-                }
-            } catch (
-                exception: Exception,
-            ) {
-                showErrorDialog(
-                    message = "Error loading font: $fontPath ${exception.localizedMessage}",
-                )
-            }
-        }
     }
 
     // region error dialog
