@@ -4,7 +4,6 @@ package com.makeappssimple.material.symbols.dialog
 
 import com.android.tools.idea.projectsystem.SourceProviderManager
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
@@ -643,7 +642,6 @@ class MaterialSymbolsDialog(
         private val cellIndex: Int,
     ) : Icon {
         companion object {
-            private val LOG = Logger.getInstance(RemoteUrlIcon::class.java)
             private val loadingUrls = ConcurrentHashMap.newKeySet<String>()
             private val waitingCells = ConcurrentHashMap<String, MutableSet<Pair<CheckBoxList<MaterialSymbol>, Int>>>()
         }
@@ -670,20 +668,19 @@ class MaterialSymbolsDialog(
                 return // Already loading
             }
 
-            LOG.error("Abhi: Loading image: $iconUrl")
             try {
                 val loadedImage = withContext(
                     context = Dispatchers.IO,
                 ) {
                     SVGLoader.load(
-                        URL(iconUrl),
+                        URL(
+                            iconUrl,
+                        ),
                         1.0f
                     )
                 }
                 iconCache[iconUrl] = loadedImage
-                LOG.error("Abhi: Successfully loaded: $iconUrl")
-            } catch (e: Exception) {
-                LOG.error("Abhi: Error loading icon: $iconUrl", e)
+            } catch (exception: Exception) {
             } finally {
                 loadingUrls.remove(iconUrl)
                 withContext(
