@@ -1,6 +1,6 @@
 package com.makeappssimple.material.symbols.model
 
-data class MaterialSymbol(
+internal data class MaterialSymbol(
     val name: String,
     val title: String,
 )

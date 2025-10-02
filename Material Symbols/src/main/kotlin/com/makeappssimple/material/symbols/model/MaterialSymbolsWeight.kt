@@ -1,6 +1,6 @@
 package com.makeappssimple.material.symbols.model
 
-enum class MaterialSymbolsWeight(
+internal enum class MaterialSymbolsWeight(
     val value: Int,
 ) {
     W100(

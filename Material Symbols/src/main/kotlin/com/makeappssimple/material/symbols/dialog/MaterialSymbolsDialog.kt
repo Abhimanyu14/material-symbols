@@ -61,7 +61,7 @@ import org.jetbrains.android.facet.AndroidFacet
 
 private const val dialogTitle = "Material Symbols"
 
-class MaterialSymbolsDialog(
+public class MaterialSymbolsDialog(
     private val project: Project,
 ) : DialogWrapper(project) {
     // region coroutines

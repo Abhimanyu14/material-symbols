@@ -1,6 +1,6 @@
 package com.makeappssimple.material.symbols.model
 
-enum class MaterialSymbolsGrade(
+internal enum class MaterialSymbolsGrade(
     val value: Int,
 ) {
     GRADE_NEGATIVE_25(

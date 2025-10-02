@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.makeappssimple.material.symbols.dialog.MaterialSymbolsDialog
 
-class MaterialSymbolsAction : AnAction() {
+public class MaterialSymbolsAction : AnAction() {
     override fun actionPerformed(
         anActionEvent: AnActionEvent,
     ) {

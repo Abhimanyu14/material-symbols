@@ -1,6 +1,6 @@
 package com.makeappssimple.material.symbols.model
 
-enum class MaterialSymbolsSize(
+internal enum class MaterialSymbolsSize(
     val value: Int,
 ) {
     S20(

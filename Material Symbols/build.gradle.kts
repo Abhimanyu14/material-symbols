@@ -45,6 +45,10 @@ intellijPlatform {
     }
 }
 
+kotlin {
+    explicitApi()
+}
+
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {

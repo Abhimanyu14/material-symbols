@@ -1,6 +1,6 @@
 package com.makeappssimple.material.symbols.model
 
-enum class MaterialSymbolsStyle(
+internal enum class MaterialSymbolsStyle(
     val value: String,
 ) {
     OUTLINED(
