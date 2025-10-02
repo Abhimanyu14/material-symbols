@@ -8,6 +8,7 @@ import com.intellij.openapi.project.modules
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
@@ -17,7 +18,6 @@ import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.CheckBox
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.Panel
-import com.intellij.util.SVGLoader
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
 import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
@@ -29,9 +29,7 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Graphics
-import java.awt.Image
 import java.awt.event.ItemEvent
-import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.Icon
@@ -68,7 +66,7 @@ public class MaterialSymbolsDialog(
 
     // region data
     private val viewModel = MaterialSymbolsDialogViewModel()
-    private val iconCache = ConcurrentHashMap<String, Image>()
+    private val iconCache = ConcurrentHashMap<String, Icon>()
     // endregion
 
     // region UI elements
@@ -514,7 +512,7 @@ public class MaterialSymbolsDialog(
     private class MyCellRenderer(
         private val list: CheckBoxList<MaterialSymbol>,
         private val viewModel: MaterialSymbolsDialogViewModel,
-        private val iconCache: ConcurrentHashMap<String, Image>,
+        private val iconCache: ConcurrentHashMap<String, Icon>,
         private val coroutineScope: CoroutineScope,
     ) : ListCellRenderer<JCheckBox> {
         private val panel = JPanel(BorderLayout(0, 2))
@@ -587,7 +585,7 @@ public class MaterialSymbolsDialog(
 
     private class RemoteUrlIcon(
         private val iconUrl: String,
-        private val iconCache: ConcurrentHashMap<String, Image>,
+        private val iconCache: ConcurrentHashMap<String, Icon>,
         private val coroutineScope: CoroutineScope,
         private val list: CheckBoxList<MaterialSymbol>,
         private val cellIndex: Int,
@@ -603,34 +601,38 @@ public class MaterialSymbolsDialog(
             x: Int,
             y: Int,
         ) {
-            val image = iconCache[iconUrl]
-            if (image != null) {
-                g.drawImage(image, x, y, c)
+            val icon = iconCache[iconUrl]
+            if (icon != null) {
+                icon.paintIcon(c, g, x, y)
             } else {
-                waitingCells.computeIfAbsent(iconUrl) { ConcurrentHashMap.newKeySet() }.add(list to cellIndex)
+                waitingCells.computeIfAbsent(
+                    iconUrl,
+                ) {
+                    ConcurrentHashMap.newKeySet()
+                }.add(list to cellIndex)
                 coroutineScope.launch {
-                    loadImage()
+                    loadIcon()
                 }
             }
         }
 
-        private suspend fun loadImage() {
+        private suspend fun loadIcon() {
             if (!loadingUrls.add(iconUrl)) {
                 return // Already loading
             }
 
             try {
-                val loadedImage = withContext(
+                val loadedIcon = withContext(
                     context = Dispatchers.IO,
                 ) {
-                    SVGLoader.load(
-                        URL(
-                            iconUrl,
-                        ),
-                        1.0f
+                    IconLoader.findIcon(
+                        iconUrl,
+                        RemoteUrlIcon::class.java,
                     )
                 }
-                iconCache[iconUrl] = loadedImage
+                loadedIcon?.let {
+                    iconCache[iconUrl] = loadedIcon
+                }
             } catch (
                 exception: Exception,
             ) {
@@ -649,11 +651,11 @@ public class MaterialSymbolsDialog(
         }
 
         override fun getIconWidth(): Int {
-            return iconCache[iconUrl]?.getWidth(null) ?: 48 // Default width
+            return 6 // iconCache[iconUrl]?.iconWidth ?: 32 // Default width
         }
 
         override fun getIconHeight(): Int {
-            return iconCache[iconUrl]?.getHeight(null) ?: 48 // Default height
+            return 6 // iconCache[iconUrl]?.iconHeight ?: 32 // Default height
         }
     }
 }
