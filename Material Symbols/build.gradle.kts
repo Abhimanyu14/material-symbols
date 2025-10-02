@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.makeappssimple.material.symbols"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -42,7 +42,7 @@ intellijPlatform {
         }
 
         changeNotes = """
-      Initial version
+      UI enhancements 
     """.trimIndent()
     }
 }
