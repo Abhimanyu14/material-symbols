@@ -64,12 +64,18 @@ internal class MyCellRenderer(
         if (materialSymbol != null) {
             iconLabel.icon = RemoteUrlIcon(
                 coroutineScope = coroutineScope,
-                checkBoxList = this.checkBoxList,
-                cellIndex = index,
                 remoteIconLoader = remoteIconLoader,
                 iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                     materialSymbol = materialSymbol,
                 ),
+                onIconLoaded = {
+                    checkBoxList.repaint(
+                        checkBoxList.getCellBounds(
+                            index,
+                            index,
+                        ),
+                    )
+                },
             )
             textLabel.text = "<html>${materialSymbol.title}</html>"
         }

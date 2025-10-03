@@ -1,8 +1,6 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.openapi.util.IconLoader
-import com.intellij.ui.CheckBoxList
-import com.makeappssimple.material.symbols.model.MaterialSymbol
 import java.awt.Component
 import java.awt.Graphics
 import java.net.URI
@@ -15,10 +13,9 @@ private const val defaultIconSize = 60
 
 internal class RemoteUrlIcon(
     private val coroutineScope: CoroutineScope,
-    private val checkBoxList: CheckBoxList<MaterialSymbol>,
-    private val cellIndex: Int,
     private val remoteIconLoader: RemoteIconLoader,
     private val iconUrl: String,
+    private val onIconLoaded: () -> Unit,
 ) : Icon {
     // TODO(Abhi): Check if this can be removed
     /*
@@ -54,12 +51,7 @@ internal class RemoteUrlIcon(
                 context = Dispatchers.IO,
             ) {
                 loadIcon()
-                checkBoxList.repaint(
-                    checkBoxList.getCellBounds(
-                        cellIndex,
-                        cellIndex,
-                    ),
-                )
+                onIconLoaded()
             }
         }
     }

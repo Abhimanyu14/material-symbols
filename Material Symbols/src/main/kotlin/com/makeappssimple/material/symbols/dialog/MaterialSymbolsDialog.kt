@@ -11,9 +11,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.ui.CheckBoxList
 import com.intellij.ui.SearchTextField
-import com.intellij.ui.components.CheckBox
-import com.intellij.ui.components.Label
-import com.intellij.ui.components.Panel
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
@@ -27,8 +24,10 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.event.ItemEvent
 import javax.swing.BorderFactory
+import javax.swing.BoxLayout
 import javax.swing.JCheckBox
 import javax.swing.JComponent
+import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JProgressBar
@@ -66,8 +65,8 @@ public class MaterialSymbolsDialog(
     // region UI elements
     private val progressBar = JProgressBar()
     private val searchTextField = SearchTextField()
-    private val listPanel = Panel(
-        layout = BorderLayout(),
+    private val listPanel = JPanel(
+        BorderLayout(),
     )
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
     // endregion
@@ -79,20 +78,24 @@ public class MaterialSymbolsDialog(
     }
 
     override fun createCenterPanel(): JComponent {
-        return Panel(
-            layout = BorderLayout(),
+        return JPanel(
         ).apply {
+            layout = BoxLayout(
+                this,
+                BoxLayout.Y_AXIS,
+            )
             minimumSize = Dimension(
                 minimumWidth,
                 minimumHeight,
             )
             add(
                 createOptionsPanel(),
-                BorderLayout.NORTH,
+            )
+            add(
+                createPreviewPanel(),
             )
             add(
                 createContentPanel(),
-                BorderLayout.CENTER,
             )
         }
     }
@@ -176,8 +179,8 @@ public class MaterialSymbolsDialog(
             ),
         ).apply {
             // region filled
-            val fillCheckBox = CheckBox(
-                text = "Filled",
+            val fillCheckBox = JCheckBox(
+                "Filled",
             )
             fillCheckBox.isSelected = viewModel.selectedFill
             fillCheckBox.addActionListener { actionEvent ->
@@ -189,8 +192,8 @@ public class MaterialSymbolsDialog(
 
             // region style
             add(
-                Label(
-                    text = "Style:",
+                JLabel(
+                    "Style:",
                 ),
             )
             val styleComboBox = ComboBox(
@@ -208,8 +211,8 @@ public class MaterialSymbolsDialog(
 
             // region weight
             add(
-                Label(
-                    text = "Weight:",
+                JLabel(
+                    "Weight:",
                 ),
             )
             val weightComboBox = ComboBox(
@@ -227,8 +230,8 @@ public class MaterialSymbolsDialog(
 
             // region grade
             add(
-                Label(
-                    text = "Grade:",
+                JLabel(
+                    "Grade:",
                 ),
             )
             val gradeComboBox = ComboBox(
@@ -246,8 +249,8 @@ public class MaterialSymbolsDialog(
 
             // region size
             add(
-                Label(
-                    text = "Size:",
+                JLabel(
+                    "Size:",
                 ),
             )
             val sizeComboBox = ComboBox(
@@ -265,9 +268,27 @@ public class MaterialSymbolsDialog(
         }
     }
 
+    private fun createPreviewPanel(): JLabel {
+        return JLabel().apply {
+            icon = RemoteUrlIcon(
+                coroutineScope = coroutineScope,
+                remoteIconLoader = remoteIconLoader,
+                iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/10k/default/24px.svg",
+                onIconLoaded = {
+                    repaint()
+                },
+            )
+            val iconSize = Dimension(200, 200)
+            minimumSize = iconSize
+            size = iconSize
+            preferredSize = iconSize
+            setSize(200, 200)
+        }
+    }
+
     private fun createContentPanel(): JPanel {
-        return Panel(
-            layout = BorderLayout(),
+        return JPanel(
+            BorderLayout(),
         ).apply {
             add(
                 searchTextField,
