@@ -26,13 +26,9 @@ private val DEFAULT_SIZE = MaterialSymbolsSize.S24
 
 private const val cacheDirectoryFileName = "material-symbols-icons"
 
-internal class MaterialSymbolsDialogViewModel {
-    // region coroutines
-    private val coroutineScope = CoroutineScope(
-        context = SupervisorJob() + Dispatchers.IO,
-    )
-    // endregion
-
+internal class MaterialSymbolsDialogViewModel(
+    private val coroutineScope: CoroutineScope,
+) {
     // region data
     val iconDataSource: IconDataSource = IconDataSourceImpl()
     var allMaterialSymbols: List<MaterialSymbol> = emptyList()

@@ -63,7 +63,9 @@ public class MaterialSymbolsDialog(
     // endregion
 
     // region data
-    private val viewModel = MaterialSymbolsDialogViewModel()
+    private val viewModel = MaterialSymbolsDialogViewModel(
+        coroutineScope = coroutineScope,
+    )
     private val iconCache = ConcurrentHashMap<String, Icon>()
     // endregion
 
@@ -582,7 +584,9 @@ public class MaterialSymbolsDialog(
                     iconUrl,
                 ) {
                     ConcurrentHashMap.newKeySet()
-                }.add(list to cellIndex)
+                }.add(
+                    element = list to cellIndex,
+                )
                 coroutineScope.launch(
                     context = Dispatchers.IO,
                 ) {
@@ -597,14 +601,10 @@ public class MaterialSymbolsDialog(
             }
 
             try {
-                val loadedIcon = withContext(
-                    context = Dispatchers.IO,
-                ) {
-                    IconLoader.findIcon(
-                        iconUrl,
-                        RemoteUrlIcon::class.java,
-                    )
-                }
+                val loadedIcon = IconLoader.findIcon(
+                    iconUrl,
+                    RemoteUrlIcon::class.java,
+                )
                 loadedIcon?.let {
                     iconCache[iconUrl] = loadedIcon
                 }
@@ -615,12 +615,12 @@ public class MaterialSymbolsDialog(
                 loadingUrls.remove(
                     iconUrl,
                 )
-                withContext(
-                    context = Dispatchers.Swing,
-                ) {
-                    waitingCells.remove(
-                        iconUrl,
-                    )?.forEach { (targetList, targetIndex) ->
+                waitingCells.remove(
+                    iconUrl,
+                )?.forEach { (targetList, targetIndex) ->
+                    withContext(
+                        context = Dispatchers.Swing,
+                    ) {
                         targetList.repaint(
                             targetList.getCellBounds(
                                 targetIndex,
