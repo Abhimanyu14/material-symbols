@@ -57,9 +57,8 @@ internal class MyCellRenderer(
         // Clear previous components to avoid duplication on cell reuse
         value.removeAll()
 
-        // Add the icon and text labels to the checkbox component
+        // Add the icon to the checkbox component
         value.add(iconLabel, BorderLayout.WEST)
-        // value.add(textLabel, BorderLayout.CENTER)
 
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {

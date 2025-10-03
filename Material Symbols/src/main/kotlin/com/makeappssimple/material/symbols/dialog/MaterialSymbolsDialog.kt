@@ -44,6 +44,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 
 private const val dialogTitle = "Material Symbols"
+private const val minimumHeight = 600
+private const val minimumWidth = 700
 
 public class MaterialSymbolsDialog(
     private val project: Project,
@@ -81,8 +83,8 @@ public class MaterialSymbolsDialog(
             layout = BorderLayout(),
         ).apply {
             minimumSize = Dimension(
-                700,
-                600,
+                minimumWidth,
+                minimumHeight,
             )
             add(
                 createOptionsPanel(),

@@ -5,13 +5,11 @@ import com.intellij.ui.CheckBoxList
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import java.awt.Component
 import java.awt.Graphics
-import java.util.concurrent.ConcurrentHashMap
+import java.net.URI
 import javax.swing.Icon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.swing.Swing
-import kotlinx.coroutines.withContext
 
 private const val defaultIconSize = 60
 
@@ -22,10 +20,13 @@ internal class RemoteUrlIcon(
     private val remoteIconLoader: RemoteIconLoader,
     private val iconUrl: String,
 ) : Icon {
+    // TODO(Abhi): Check if this can be removed
+    /*
     companion object {
         private val loadingUrls = ConcurrentHashMap.newKeySet<String>()
         private val waitingCells = ConcurrentHashMap<String, MutableSet<Pair<CheckBoxList<MaterialSymbol>, Int>>>()
     }
+    */
 
     override fun paintIcon(
         c: Component,
@@ -39,6 +40,8 @@ internal class RemoteUrlIcon(
         if (icon != null) {
             icon.paintIcon(c, g, x, y)
         } else {
+            // TODO(Abhi): Check if this can be removed
+            /*
             waitingCells.computeIfAbsent(
                 iconUrl,
             ) {
@@ -46,23 +49,32 @@ internal class RemoteUrlIcon(
             }.add(
                 element = checkBoxList to cellIndex,
             )
+            */
             coroutineScope.launch(
                 context = Dispatchers.IO,
             ) {
                 loadIcon()
+                checkBoxList.repaint(
+                    checkBoxList.getCellBounds(
+                        cellIndex,
+                        cellIndex,
+                    ),
+                )
             }
         }
     }
 
-    private suspend fun loadIcon() {
+    private fun loadIcon() {
+        // TODO(Abhi): Check if this can be removed
+        /*
         if (!loadingUrls.add(iconUrl)) {
             return // Already loading
         }
-
+        */
         try {
             val loadedIcon = IconLoader.findIcon(
-                iconUrl,
-                RemoteUrlIcon::class.java,
+                url = URI.create(iconUrl).toURL(),
+                storeToCache = true,
             )
             loadedIcon?.let {
                 remoteIconLoader.cacheIcon(
@@ -74,6 +86,8 @@ internal class RemoteUrlIcon(
             exception: Exception,
         ) {
         } finally {
+            // TODO(Abhi): Check if this can be removed
+            /*
             loadingUrls.remove(
                 iconUrl,
             )
@@ -91,6 +105,7 @@ internal class RemoteUrlIcon(
                     )
                 }
             }
+            */
         }
     }
 
