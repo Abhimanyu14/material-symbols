@@ -31,6 +31,7 @@ internal class MaterialSymbolsDialogViewModel(
 ) {
     // region data
     val iconDataSource: IconDataSource = IconDataSourceImpl()
+    var allIcons: List<String> = emptyList()
     var allMaterialSymbols: List<MaterialSymbol> = emptyList()
     val selectedMaterialSymbols = mutableListOf<MaterialSymbol>()
     private val drawableResourceFileContentCache = mutableMapOf<String, String>()
@@ -45,7 +46,7 @@ internal class MaterialSymbolsDialogViewModel(
     // endregion
 
     suspend fun getAllIcons() {
-        if (allMaterialSymbols.isNotEmpty()) {
+        if (allIcons.isNotEmpty()) {
             return
         }
         withContext(
@@ -56,7 +57,7 @@ internal class MaterialSymbolsDialogViewModel(
                 cacheDirectoryFileName,
             )
             cacheDir.mkdirs()
-            val allIcons = iconDataSource.getAllIcons(
+            allIcons = iconDataSource.getAllIcons(
                 cacheFile = cacheDir,
             )
             allMaterialSymbols = allIcons.map { icon ->
