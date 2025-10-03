@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
@@ -26,21 +25,17 @@ import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.awt.Graphics
 import java.awt.event.ItemEvent
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.Icon
 import javax.swing.JCheckBox
 import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.JScrollPane
-import javax.swing.ListCellRenderer
 import javax.swing.ListSelectionModel
-import javax.swing.SwingConstants
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +44,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
-import kotlinx.coroutines.withContext
 
 private const val dialogTitle = "Material Symbols"
 
@@ -482,162 +476,4 @@ public class MaterialSymbolsDialog(
     }
     // endregion
 
-    private class MyCellRenderer(
-        private val list: CheckBoxList<MaterialSymbol>,
-        private val viewModel: MaterialSymbolsDialogViewModel,
-        private val iconCache: ConcurrentHashMap<String, Icon>,
-        private val coroutineScope: CoroutineScope,
-    ) : ListCellRenderer<JCheckBox> {
-        private val iconLabel = JLabel()
-        private val textLabel = JLabel()
-
-        init {
-            iconLabel.verticalAlignment = SwingConstants.CENTER
-            iconLabel.horizontalAlignment = SwingConstants.CENTER
-            val iconSize = 60
-            val iconDimension = Dimension(iconSize, iconSize)
-            iconLabel.preferredSize = iconDimension
-
-            textLabel.verticalAlignment = SwingConstants.CENTER
-            textLabel.horizontalAlignment = SwingConstants.LEFT
-            textLabel.border = BorderFactory.createEmptyBorder(4, 16, 4, 16)
-        }
-
-        override fun getListCellRendererComponent(
-            list: JList<out JCheckBox?>,
-            value: JCheckBox?,
-            index: Int,
-            isSelected: Boolean,
-            cellHasFocus: Boolean,
-        ): Component {
-            if (value == null) {
-                // Should not happen with CheckBoxList, but good practice
-                return JLabel("Error")
-            }
-
-            // Use the provided JCheckBox as the root component.
-            // JCheckBox is a container, so we can add components to it.
-            value.layout = BorderLayout()
-            value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
-
-            // Clear previous components to avoid duplication on cell reuse
-            value.removeAll()
-
-            // Add the icon and text labels to the checkbox component
-            value.add(iconLabel, BorderLayout.WEST)
-            // value.add(textLabel, BorderLayout.CENTER)
-
-            val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
-            if (materialSymbol != null) {
-                iconLabel.icon = RemoteUrlIcon(
-                    iconUrl = viewModel.getIconUrl(
-                        materialSymbol = materialSymbol,
-                    ),
-                    iconCache = iconCache,
-                    coroutineScope = coroutineScope,
-                    list = this.list,
-                    cellIndex = index,
-                )
-                textLabel.text = "<html>${materialSymbol.title}</html>"
-            }
-
-            // Apply selection colors
-            if (isSelected) {
-                value.background = list.selectionBackground
-                textLabel.foreground = list.selectionForeground
-            } else {
-                value.background = list.background
-                textLabel.foreground = list.foreground
-            }
-            iconLabel.background = value.background
-            textLabel.background = value.background
-
-            value.isOpaque = true
-            value.iconTextGap = 28
-            return value
-        }
-    }
-
-    private class RemoteUrlIcon(
-        private val iconUrl: String,
-        private val iconCache: ConcurrentHashMap<String, Icon>,
-        private val coroutineScope: CoroutineScope,
-        private val list: CheckBoxList<MaterialSymbol>,
-        private val cellIndex: Int,
-    ) : Icon {
-        companion object {
-            private val loadingUrls = ConcurrentHashMap.newKeySet<String>()
-            private val waitingCells = ConcurrentHashMap<String, MutableSet<Pair<CheckBoxList<MaterialSymbol>, Int>>>()
-        }
-
-        override fun paintIcon(
-            c: Component,
-            g: Graphics,
-            x: Int,
-            y: Int,
-        ) {
-            val icon = iconCache[iconUrl]
-            if (icon != null) {
-                icon.paintIcon(c, g, x, y)
-            } else {
-                waitingCells.computeIfAbsent(
-                    iconUrl,
-                ) {
-                    ConcurrentHashMap.newKeySet()
-                }.add(
-                    element = list to cellIndex,
-                )
-                coroutineScope.launch(
-                    context = Dispatchers.IO,
-                ) {
-                    loadIcon()
-                }
-            }
-        }
-
-        private suspend fun loadIcon() {
-            if (!loadingUrls.add(iconUrl)) {
-                return // Already loading
-            }
-
-            try {
-                val loadedIcon = IconLoader.findIcon(
-                    iconUrl,
-                    RemoteUrlIcon::class.java,
-                )
-                loadedIcon?.let {
-                    iconCache[iconUrl] = loadedIcon
-                }
-            } catch (
-                exception: Exception,
-            ) {
-            } finally {
-                loadingUrls.remove(
-                    iconUrl,
-                )
-                waitingCells.remove(
-                    iconUrl,
-                )?.forEach { (targetList, targetIndex) ->
-                    withContext(
-                        context = Dispatchers.Swing,
-                    ) {
-                        targetList.repaint(
-                            targetList.getCellBounds(
-                                targetIndex,
-                                targetIndex,
-                            ),
-                        )
-                    }
-                }
-            }
-        }
-
-        override fun getIconWidth(): Int {
-            return iconCache[iconUrl]?.iconWidth ?: 60
-        }
-
-        override fun getIconHeight(): Int {
-            return iconCache[iconUrl]?.iconHeight ?: 60
-        }
-    }
 }
