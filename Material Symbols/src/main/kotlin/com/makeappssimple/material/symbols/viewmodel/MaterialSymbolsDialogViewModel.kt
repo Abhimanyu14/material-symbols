@@ -30,8 +30,8 @@ internal class MaterialSymbolsDialogViewModel(
     private val coroutineScope: CoroutineScope,
 ) {
     // region data
-    val iconDataSource: IconDataSource = IconDataSourceImpl()
-    var allIcons: List<String> = emptyList()
+    private val iconDataSource: IconDataSource = IconDataSourceImpl()
+    private var allIcons: List<String> = emptyList()
     var allMaterialSymbols: List<MaterialSymbol> = emptyList()
     val selectedMaterialSymbols = mutableListOf<MaterialSymbol>()
     private val drawableResourceFileContentCache = mutableMapOf<String, String>()
