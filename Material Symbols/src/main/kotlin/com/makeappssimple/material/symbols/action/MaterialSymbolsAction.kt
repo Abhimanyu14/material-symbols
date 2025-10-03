@@ -8,8 +8,7 @@ public class MaterialSymbolsAction : AnAction() {
     override fun actionPerformed(
         anActionEvent: AnActionEvent,
     ) {
-        val project = anActionEvent.project
-        if (project != null) {
+        anActionEvent.project?.let { project ->
             MaterialSymbolsDialog(
                 project = project,
             ).show()
