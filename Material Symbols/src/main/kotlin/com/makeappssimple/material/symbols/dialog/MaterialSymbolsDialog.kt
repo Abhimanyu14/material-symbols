@@ -514,41 +514,19 @@ public class MaterialSymbolsDialog(
         private val iconCache: ConcurrentHashMap<String, Icon>,
         private val coroutineScope: CoroutineScope,
     ) : ListCellRenderer<JCheckBox> {
-        private val cellPanel = JPanel(BorderLayout())
-        private val checkBox = JCheckBox()
         private val iconLabel = JLabel()
         private val textLabel = JLabel()
-        private val contentPanel = JPanel(BorderLayout())
 
         init {
-            checkBox.verticalAlignment = SwingConstants.CENTER
-            checkBox.horizontalAlignment = SwingConstants.CENTER
-            checkBox.border = BorderFactory.createEmptyBorder(16, 16, 16, 16)
-
             iconLabel.verticalAlignment = SwingConstants.CENTER
             iconLabel.horizontalAlignment = SwingConstants.CENTER
             val iconSize = 60
             val iconDimension = Dimension(iconSize, iconSize)
             iconLabel.preferredSize = iconDimension
-            iconLabel.minimumSize = iconDimension
-            iconLabel.maximumSize = iconDimension
-            iconLabel.size = iconDimension
 
             textLabel.verticalAlignment = SwingConstants.CENTER
             textLabel.horizontalAlignment = SwingConstants.LEFT
             textLabel.border = BorderFactory.createEmptyBorder(4, 16, 4, 16)
-
-            contentPanel.add(iconLabel, BorderLayout.WEST)
-            contentPanel.add(textLabel, BorderLayout.CENTER)
-
-            val cellDimension = Dimension(320, 60)
-            cellPanel.preferredSize = cellDimension
-            cellPanel.minimumSize = cellDimension
-            cellPanel.maximumSize = cellDimension
-            cellPanel.size = cellDimension
-
-            cellPanel.add(checkBox, BorderLayout.WEST)
-            cellPanel.add(contentPanel, BorderLayout.CENTER)
         }
 
         override fun getListCellRendererComponent(
@@ -559,10 +537,23 @@ public class MaterialSymbolsDialog(
             cellHasFocus: Boolean,
         ): Component {
             if (value == null) {
-                return cellPanel
+                // Should not happen with CheckBoxList, but good practice
+                return JLabel("Error")
             }
+
+            // Use the provided JCheckBox as the root component.
+            // JCheckBox is a container, so we can add components to it.
+            value.layout = BorderLayout()
+            value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
+
+            // Clear previous components to avoid duplication on cell reuse
+            value.removeAll()
+
+            // Add the icon and text labels to the checkbox component
+            value.add(iconLabel, BorderLayout.WEST)
+            // value.add(textLabel, BorderLayout.CENTER)
+
             val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
-            checkBox.isSelected = value.isSelected
             if (materialSymbol != null) {
                 iconLabel.icon = RemoteUrlIcon(
                     iconUrl = viewModel.getIconUrl(
@@ -575,22 +566,21 @@ public class MaterialSymbolsDialog(
                 )
                 textLabel.text = "<html>${materialSymbol.title}</html>"
             }
+
+            // Apply selection colors
             if (isSelected) {
-                cellPanel.background = list.selectionBackground
-                contentPanel.background = list.selectionBackground
-                checkBox.background = list.selectionBackground
+                value.background = list.selectionBackground
                 textLabel.foreground = list.selectionForeground
             } else {
-                cellPanel.background = list.background
-                contentPanel.background = list.background
-                checkBox.background = list.background
+                value.background = list.background
                 textLabel.foreground = list.foreground
             }
-            checkBox.addActionListener { actionEvent ->
-                value.isSelected = (actionEvent.source as JCheckBox).isSelected
-            }
-            cellPanel.isOpaque = true
-            return cellPanel
+            iconLabel.background = value.background
+            textLabel.background = value.background
+
+            value.isOpaque = true
+            value.iconTextGap = 28
+            return value
         }
     }
 
