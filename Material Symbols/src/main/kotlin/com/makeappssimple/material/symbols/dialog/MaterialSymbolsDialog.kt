@@ -514,7 +514,7 @@ public class MaterialSymbolsDialog(
         private val iconCache: ConcurrentHashMap<String, Icon>,
         private val coroutineScope: CoroutineScope,
     ) : ListCellRenderer<JCheckBox> {
-        private val panel = JPanel(BorderLayout())
+        private val cellPanel = JPanel(BorderLayout())
         private val checkBox = JCheckBox()
         private val iconLabel = JLabel()
         private val textLabel = JLabel()
@@ -542,13 +542,13 @@ public class MaterialSymbolsDialog(
             contentPanel.add(textLabel, BorderLayout.CENTER)
 
             val cellDimension = Dimension(320, 60)
-            panel.preferredSize = cellDimension
-            panel.minimumSize = cellDimension
-            panel.maximumSize = cellDimension
-            panel.size = cellDimension
+            cellPanel.preferredSize = cellDimension
+            cellPanel.minimumSize = cellDimension
+            cellPanel.maximumSize = cellDimension
+            cellPanel.size = cellDimension
 
-            panel.add(checkBox, BorderLayout.WEST)
-            panel.add(contentPanel, BorderLayout.CENTER)
+            cellPanel.add(checkBox, BorderLayout.WEST)
+            cellPanel.add(contentPanel, BorderLayout.CENTER)
         }
 
         override fun getListCellRendererComponent(
@@ -558,9 +558,12 @@ public class MaterialSymbolsDialog(
             isSelected: Boolean,
             cellHasFocus: Boolean,
         ): Component {
+            if (value == null) {
+                return cellPanel
+            }
             val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
-            if (materialSymbol != null && value != null) {
-                checkBox.isSelected = value.isSelected
+            checkBox.isSelected = value.isSelected
+            if (materialSymbol != null) {
                 iconLabel.icon = RemoteUrlIcon(
                     iconUrl = viewModel.getIconUrl(
                         materialSymbol = materialSymbol,
@@ -572,21 +575,22 @@ public class MaterialSymbolsDialog(
                 )
                 textLabel.text = "<html>${materialSymbol.title}</html>"
             }
-
             if (isSelected) {
-                panel.background = list.selectionBackground
+                cellPanel.background = list.selectionBackground
                 contentPanel.background = list.selectionBackground
+                checkBox.background = list.selectionBackground
                 textLabel.foreground = list.selectionForeground
             } else {
-                panel.background = list.background
+                cellPanel.background = list.background
                 contentPanel.background = list.background
+                checkBox.background = list.background
                 textLabel.foreground = list.foreground
             }
-
-            checkBox.background = panel.background
-
-            panel.isOpaque = true
-            return panel
+            checkBox.addActionListener { actionEvent ->
+                value.isSelected = (actionEvent.source as JCheckBox).isSelected
+            }
+            cellPanel.isOpaque = true
+            return cellPanel
         }
     }
 
