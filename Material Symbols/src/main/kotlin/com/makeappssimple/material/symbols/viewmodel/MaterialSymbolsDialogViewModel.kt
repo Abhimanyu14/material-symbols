@@ -13,7 +13,6 @@ import java.io.File
 import java.net.URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 
@@ -35,6 +34,7 @@ internal class MaterialSymbolsDialogViewModel(
     var allMaterialSymbols: List<MaterialSymbol> = emptyList()
     val selectedMaterialSymbols = mutableListOf<MaterialSymbol>()
     private val drawableResourceFileContentCache = mutableMapOf<String, String>()
+    private val iconUrlCache = mutableMapOf<String, String>()
     // endregion
 
     // region UI state
@@ -156,6 +156,12 @@ internal class MaterialSymbolsDialogViewModel(
     fun getIconUrl(
         materialSymbol: MaterialSymbol,
     ): String {
+        val cacheKey = getMaterialSymbolStateCacheKey(
+            materialSymbol = materialSymbol,
+        )
+        iconUrlCache[cacheKey]?.let {
+            return it
+        }
         val styleString = "materialsymbols${selectedStyle.value}"
         val options = mutableListOf<String>()
         if (selectedGrade != DEFAULT_GRADE) {
@@ -183,6 +189,7 @@ internal class MaterialSymbolsDialogViewModel(
         }
         val url =
             "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${selectedSize.value}px.svg"
+        iconUrlCache[cacheKey] = url
         return url
     }
 
@@ -229,5 +236,11 @@ internal class MaterialSymbolsDialogViewModel(
 
     fun dispose() {
         coroutineScope.cancel()
+    }
+
+    private fun getMaterialSymbolStateCacheKey(
+        materialSymbol: MaterialSymbol,
+    ): String {
+        return "${materialSymbol.name}:${selectedStyle.value}:${selectedWeight.value}::${selectedFill}${selectedGrade.value}:${selectedSize.value}"
     }
 }

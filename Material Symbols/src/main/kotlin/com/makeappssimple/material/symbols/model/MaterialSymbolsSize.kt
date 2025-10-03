@@ -17,6 +17,6 @@ internal enum class MaterialSymbolsSize(
     );
 
     override fun toString(): String {
-        return "${value} dp"
+        return "$value dp"
     }
 }
