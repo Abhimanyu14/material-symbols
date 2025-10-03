@@ -45,6 +45,7 @@ import kotlinx.coroutines.swing.Swing
 private const val dialogTitle = "Material Symbols"
 private const val minimumHeight = 600
 private const val minimumWidth = 700
+private const val previewIconSize = 96
 
 public class MaterialSymbolsDialog(
     private val project: Project,
@@ -270,19 +271,22 @@ public class MaterialSymbolsDialog(
 
     private fun createPreviewPanel(): JLabel {
         return JLabel().apply {
-            icon = RemoteUrlIcon(
-                coroutineScope = coroutineScope,
-                remoteIconLoader = remoteIconLoader,
-                iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/10k/default/24px.svg",
-                onIconLoaded = {
-                    repaint()
-                },
+            icon = ScaledIcon(
+                icon = RemoteUrlIcon(
+                    coroutineScope = coroutineScope,
+                    remoteIconLoader = remoteIconLoader,
+                    iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/10k/default/48px.svg",
+                    onIconLoaded = {
+                        repaint()
+                    },
+                ),
+                width = previewIconSize,
+                height = previewIconSize,
             )
-            val iconSize = Dimension(200, 200)
-            minimumSize = iconSize
-            size = iconSize
-            preferredSize = iconSize
-            setSize(200, 200)
+            size = Dimension(
+                previewIconSize,
+                previewIconSize,
+            )
         }
     }
 
