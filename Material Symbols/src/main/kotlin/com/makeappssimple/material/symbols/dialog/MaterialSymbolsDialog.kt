@@ -1,10 +1,8 @@
 package com.makeappssimple.material.symbols.dialog
 
-import com.android.tools.idea.projectsystem.SourceProviderManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.modules
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
@@ -12,12 +10,12 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
 import com.intellij.ui.CheckBoxList
 import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.CheckBox
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.Panel
+import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
 import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
@@ -52,7 +50,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withContext
-import org.jetbrains.android.facet.AndroidFacet
 
 private const val dialogTitle = "Material Symbols"
 
@@ -140,59 +137,34 @@ public class MaterialSymbolsDialog(
     }
 
     private fun getDrawableDirectory(): PsiDirectory? {
-        val androidFacet = project.modules.firstNotNullOfOrNull {
-            AndroidFacet.getInstance(
-                it,
-            )
-        }
-        if (androidFacet == null) {
+        val androidDirectoryHelper = AndroidDirectoryHelper(
+            project = project,
+        )
+        if (!androidDirectoryHelper.isAndroidPluginInstalled()) {
             showErrorDialog(
-                message = "Android facet not found!",
+                message = "Android support plugin is not enabled!",
             )
             return null
         }
-
-        val sourceProvidersManager = SourceProviderManager.getInstance(
-            androidFacet,
-        )
-        val resourceDirectoryFile = sourceProvidersManager.sources.resDirectories.firstOrNull()
-        if (resourceDirectoryFile == null) {
-            showErrorDialog(
-                message = "Resource directory not found.",
-            )
-            return null
-        }
-
-        val psiManager = PsiManager.getInstance(
-            project,
-        )
-        val resourceDirectory = psiManager.findDirectory(
-            resourceDirectoryFile,
-        )
-        if (resourceDirectory == null) {
-            showErrorDialog(
-                message = "Could not find resource directory.",
-            )
-            return null
-        }
-
-        var drawableDirectory: PsiDirectory? = null
-        WriteCommandAction.runWriteCommandAction(
-            project,
+        return try {
+            val drawableDirectory = androidDirectoryHelper.getDrawableDirectory()
+            if (drawableDirectory == null) {
+                showErrorDialog(
+                    message = "Could not find or create a drawable directory. Is this an Android project?",
+                )
+                null
+            } else {
+                drawableDirectory
+            }
+        } catch (
+            noClassDefFoundError: NoClassDefFoundError,
         ) {
-            drawableDirectory = resourceDirectory.findSubdirectory(
-                "drawable",
-            ) ?: resourceDirectory.createSubdirectory(
-                "drawable",
-            )
-        }
-        if (drawableDirectory == null) {
+            // This is a safeguard, the check above should prevent this.
             showErrorDialog(
-                message = "Could not find or create drawable directory.",
+                message = "Android support is not available.",
             )
-            return null
+            null
         }
-        return drawableDirectory
     }
 
     override fun dispose() {
