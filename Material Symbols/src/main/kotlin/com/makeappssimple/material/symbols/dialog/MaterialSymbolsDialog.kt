@@ -26,9 +26,7 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.event.ItemEvent
-import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
-import javax.swing.Icon
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JList
@@ -60,7 +58,7 @@ public class MaterialSymbolsDialog(
     private val viewModel = MaterialSymbolsDialogViewModel(
         coroutineScope = coroutineScope,
     )
-    private val iconCache = ConcurrentHashMap<String, Icon>()
+    private val remoteIconLoader = RemoteIconLoader()
     // endregion
 
     // region UI elements
@@ -290,10 +288,10 @@ public class MaterialSymbolsDialog(
         materialSymbolCheckBoxList.visibleRowCount = -1
 
         materialSymbolCheckBoxList.cellRenderer = MyCellRenderer(
-            list = materialSymbolCheckBoxList,
-            viewModel = viewModel,
-            iconCache = iconCache,
+            checkBoxList = materialSymbolCheckBoxList,
             coroutineScope = coroutineScope,
+            materialSymbolsDialogViewModel = viewModel,
+            remoteIconLoader = remoteIconLoader,
         )
         initListeners()
     }

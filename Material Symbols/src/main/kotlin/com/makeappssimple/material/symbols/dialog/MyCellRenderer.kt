@@ -6,9 +6,7 @@ import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewMo
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
-import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
-import javax.swing.Icon
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JList
@@ -17,10 +15,10 @@ import javax.swing.SwingConstants
 import kotlinx.coroutines.CoroutineScope
 
 internal class MyCellRenderer(
-    private val list: CheckBoxList<MaterialSymbol>,
-    private val viewModel: MaterialSymbolsDialogViewModel,
-    private val iconCache: ConcurrentHashMap<String, Icon>,
+    private val checkBoxList: CheckBoxList<MaterialSymbol>,
     private val coroutineScope: CoroutineScope,
+    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
+    private val remoteIconLoader: RemoteIconLoader,
 ) : ListCellRenderer<JCheckBox> {
     private val iconLabel = JLabel()
     private val textLabel = JLabel()
@@ -46,7 +44,9 @@ internal class MyCellRenderer(
     ): Component {
         if (value == null) {
             // Should not happen with CheckBoxList, but good practice
-            return JLabel("Error")
+            return JLabel(
+                "Error",
+            )
         }
 
         // Use the provided JCheckBox as the root component.
@@ -64,13 +64,13 @@ internal class MyCellRenderer(
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {
             iconLabel.icon = RemoteUrlIcon(
-                iconUrl = viewModel.getIconUrl(
+                coroutineScope = coroutineScope,
+                checkBoxList = this.checkBoxList,
+                cellIndex = index,
+                remoteIconLoader = remoteIconLoader,
+                iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                     materialSymbol = materialSymbol,
                 ),
-                iconCache = iconCache,
-                coroutineScope = coroutineScope,
-                list = this.list,
-                cellIndex = index,
             )
             textLabel.text = "<html>${materialSymbol.title}</html>"
         }

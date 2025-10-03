@@ -13,12 +13,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withContext
 
+private const val defaultIconSize = 60
+
 internal class RemoteUrlIcon(
-    private val iconUrl: String,
-    private val iconCache: ConcurrentHashMap<String, Icon>,
     private val coroutineScope: CoroutineScope,
-    private val list: CheckBoxList<MaterialSymbol>,
+    private val checkBoxList: CheckBoxList<MaterialSymbol>,
     private val cellIndex: Int,
+    private val remoteIconLoader: RemoteIconLoader,
+    private val iconUrl: String,
 ) : Icon {
     companion object {
         private val loadingUrls = ConcurrentHashMap.newKeySet<String>()
@@ -31,7 +33,9 @@ internal class RemoteUrlIcon(
         x: Int,
         y: Int,
     ) {
-        val icon = iconCache[iconUrl]
+        val icon = remoteIconLoader.getIcon(
+            iconUrl = iconUrl,
+        )
         if (icon != null) {
             icon.paintIcon(c, g, x, y)
         } else {
@@ -40,7 +44,7 @@ internal class RemoteUrlIcon(
             ) {
                 ConcurrentHashMap.newKeySet()
             }.add(
-                element = list to cellIndex,
+                element = checkBoxList to cellIndex,
             )
             coroutineScope.launch(
                 context = Dispatchers.IO,
@@ -61,7 +65,10 @@ internal class RemoteUrlIcon(
                 RemoteUrlIcon::class.java,
             )
             loadedIcon?.let {
-                iconCache[iconUrl] = loadedIcon
+                remoteIconLoader.cacheIcon(
+                    iconUrl = iconUrl,
+                    icon = loadedIcon,
+                )
             }
         } catch (
             exception: Exception,
@@ -88,10 +95,16 @@ internal class RemoteUrlIcon(
     }
 
     override fun getIconWidth(): Int {
-        return iconCache[iconUrl]?.iconWidth ?: 60
+        val icon = remoteIconLoader.getIcon(
+            iconUrl = iconUrl,
+        )
+        return icon?.iconWidth ?: defaultIconSize
     }
 
     override fun getIconHeight(): Int {
-        return iconCache[iconUrl]?.iconHeight ?: 60
+        val icon = remoteIconLoader.getIcon(
+            iconUrl = iconUrl,
+        )
+        return icon?.iconHeight ?: defaultIconSize
     }
 }
