@@ -11,12 +11,11 @@ import com.makeappssimple.material.symbols.network.IconDataSourceImpl
 import java.io.BufferedInputStream
 import java.io.File
 import java.net.URL
-import kotlin.text.replace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.swing.Swing
+import kotlinx.coroutines.withContext
 
 // Default values for URL construction
 private val DEFAULT_STYLE = MaterialSymbolsStyle.ROUNDED
@@ -30,7 +29,7 @@ private const val cacheDirectoryFileName = "material-symbols-icons"
 internal class MaterialSymbolsDialogViewModel {
     // region coroutines
     private val coroutineScope = CoroutineScope(
-        context = SupervisorJob() + Dispatchers.Swing,
+        context = SupervisorJob() + Dispatchers.IO,
     )
     // endregion
 
@@ -53,21 +52,25 @@ internal class MaterialSymbolsDialogViewModel {
         if (allMaterialSymbols.isNotEmpty()) {
             return
         }
-        val cacheDir = File(
-            PathManager.getPluginTempPath(),
-            cacheDirectoryFileName,
-        )
-        cacheDir.mkdirs()
-        val allIcons = iconDataSource.getAllIcons(
-            cacheFile = cacheDir,
-        )
-        allMaterialSymbols = allIcons.map { icon ->
-            MaterialSymbol(
-                name = icon,
-                title = getMaterialSymbolTitle(
-                    materialSymbol = icon,
-                ),
+        withContext(
+            Dispatchers.IO,
+        ) {
+            val cacheDir = File(
+                PathManager.getPluginTempPath(),
+                cacheDirectoryFileName,
             )
+            cacheDir.mkdirs()
+            val allIcons = iconDataSource.getAllIcons(
+                cacheFile = cacheDir,
+            )
+            allMaterialSymbols = allIcons.map { icon ->
+                MaterialSymbol(
+                    name = icon,
+                    title = getMaterialSymbolTitle(
+                        materialSymbol = icon,
+                    ),
+                )
+            }
         }
     }
 

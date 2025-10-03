@@ -611,7 +611,9 @@ public class MaterialSymbolsDialog(
                 ) {
                     ConcurrentHashMap.newKeySet()
                 }.add(list to cellIndex)
-                coroutineScope.launch {
+                coroutineScope.launch(
+                    context = Dispatchers.IO,
+                ) {
                     loadIcon()
                 }
             }
