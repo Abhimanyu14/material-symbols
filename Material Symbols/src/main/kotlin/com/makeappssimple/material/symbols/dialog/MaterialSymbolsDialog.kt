@@ -475,5 +475,4 @@ public class MaterialSymbolsDialog(
         )
     }
     // endregion
-
 }
