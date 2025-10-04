@@ -11,6 +11,7 @@ import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import com.makeappssimple.material.symbols.model.DrawableResourceFileInfo
 import org.jetbrains.android.facet.AndroidFacet
 
 /**
@@ -22,17 +23,16 @@ internal class AndroidDirectoryHelper(
     private val showErrorDialog: (errorMessage: String) -> Unit,
 ) {
     fun saveDrawableFile(
-        drawableResourceFileContent: String,
-        fileName: String,
+        drawableResourceFileInfo: DrawableResourceFileInfo,
     ) {
         val drawableDirectory: PsiDirectory = getDrawableDirectory() ?: return
-        val drawableFile: PsiFile = drawableDirectory.createFile(fileName)
+        val drawableFile: PsiFile = drawableDirectory.createFile(drawableResourceFileInfo.name)
         try {
             WriteCommandAction.runWriteCommandAction(project) {
                 val psiDocumentManager = PsiDocumentManager.getInstance(project)
                 val document = psiDocumentManager.getDocument(drawableFile)
                 if (document != null) {
-                    document.setText(drawableResourceFileContent)
+                    document.setText(drawableResourceFileInfo.content)
                     psiDocumentManager.commitDocument(document)
                 }
                 drawableFile.virtualFile?.let {

@@ -1,25 +1,39 @@
 package com.makeappssimple.material.symbols.dialog
 
+import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.Dimension
 import javax.swing.BoxLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
 
 private const val minimumHeight = 600
 private const val minimumWidth = 700
 
 internal class MaterialSymbolsDialogPanel(
-    private val coroutineScope: CoroutineScope,
-    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
+    private val androidDirectoryHelper: AndroidDirectoryHelper,
     private val closeDialog: () -> Unit,
+    private val runWriteCommandAction: (commandAction: () -> Unit) -> Unit,
     private val showErrorDialog: (errorMessage: String) -> Unit,
     private val updateOkButtonEnabled: (Boolean) -> Unit,
 ) : JPanel() {
+    // region coroutine
+    private val coroutineScope: CoroutineScope = CoroutineScope(
+        context = SupervisorJob() + Dispatchers.Swing,
+    )
+    // endregion
+
     // region data
     private val iconsCache: IconsCache = IconsCache()
+    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
+        coroutineScope = coroutineScope,
+    )
     private var currentPreviewMaterialSymbol: String = "10k"
     // endregion
 
@@ -31,6 +45,30 @@ internal class MaterialSymbolsDialogPanel(
     init {
         initUI()
         fetchData()
+    }
+
+    fun saveSelectedDrawableResources() {
+        for (selectedMaterialSymbol in materialSymbolsDialogViewModel.selectedMaterialSymbols) {
+            try {
+                val drawableResourceFileInfo = materialSymbolsDialogViewModel.getDrawableResourceFileInfo(
+                    materialSymbol = selectedMaterialSymbol,
+                )
+                runWriteCommandAction {
+                    androidDirectoryHelper.saveDrawableFile(
+                        drawableResourceFileInfo = drawableResourceFileInfo,
+                    )
+                }
+            } catch (
+                exception: Exception,
+            ) {
+                showErrorDialog("Failed to download the icons: ${exception.message}")
+                closeDialog()
+            }
+        }
+    }
+
+    fun dispose() {
+        coroutineScope.cancel()
     }
 
     private fun initUI() {

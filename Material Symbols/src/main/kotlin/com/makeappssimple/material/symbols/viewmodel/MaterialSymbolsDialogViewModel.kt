@@ -1,6 +1,7 @@
 package com.makeappssimple.material.symbols.viewmodel
 
 import com.intellij.openapi.application.PathManager
+import com.makeappssimple.material.symbols.model.DrawableResourceFileInfo
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
 import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
@@ -229,6 +230,21 @@ internal class MaterialSymbolsDialogViewModel(
         }
         val size = "_${selectedSize.value}dp"
         return "ic_${sanitizedFileName}${style}${weight}${filledValue}${grade}${size}.xml"
+    }
+
+    fun getDrawableResourceFileInfo(
+        materialSymbol: MaterialSymbol,
+    ): DrawableResourceFileInfo {
+        val fileContent = getDrawableResourceFileContent(
+            materialSymbol = materialSymbol,
+        )
+        val fileName: String = getFileName(
+            materialSymbol = materialSymbol,
+        )
+        return DrawableResourceFileInfo(
+            content = fileContent,
+            name = fileName,
+        )
     }
 
     private fun getMaterialSymbolStateCacheKey(

@@ -5,30 +5,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
-import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import javax.swing.JComponent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.swing.Swing
 
 private const val dialogTitle = "Material Symbols"
 
 public class MaterialSymbolsDialog(
     private val project: Project,
 ) : DialogWrapper(project) {
-    // region coroutine
-    private val coroutineScope: CoroutineScope = CoroutineScope(
-        context = SupervisorJob() + Dispatchers.Swing,
-    )
-    // endregion
-
-    // region data
-    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
-        coroutineScope = coroutineScope,
-    )
-    // endregion
+    private var materialSymbolsDialogPanel: MaterialSymbolsDialogPanel? = null
 
     init {
         init()
@@ -36,11 +20,23 @@ public class MaterialSymbolsDialog(
     }
 
     override fun createCenterPanel(): JComponent {
-        return MaterialSymbolsDialogPanel(
-            coroutineScope = coroutineScope,
-            materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
+        val androidDirectoryHelper = AndroidDirectoryHelper(
+            project = project,
+            showErrorDialog = {
+                showErrorDialog(
+                    errorMessage = it,
+                )
+            }
+        )
+        val dialogPanel = MaterialSymbolsDialogPanel(
+            androidDirectoryHelper = androidDirectoryHelper,
             closeDialog = {
                 close(CLOSE_EXIT_CODE)
+            },
+            runWriteCommandAction = { commandAction ->
+                WriteCommandAction.runWriteCommandAction(project) {
+                    commandAction()
+                }
             },
             showErrorDialog = { errorMessage ->
                 showErrorDialog(
@@ -51,45 +47,18 @@ public class MaterialSymbolsDialog(
                 isOKActionEnabled = it
             },
         )
+        materialSymbolsDialogPanel = dialogPanel
+        return dialogPanel
     }
 
     override fun doOKAction() {
-        val androidDirectoryHelper = AndroidDirectoryHelper(
-            project = project,
-            showErrorDialog = {
-                showErrorDialog(
-                    errorMessage = it,
-                )
-            }
-        )
-        for (selectedMaterialSymbol in materialSymbolsDialogViewModel.selectedMaterialSymbols) {
-            try {
-                val fileName: String = materialSymbolsDialogViewModel.getFileName(
-                    materialSymbol = selectedMaterialSymbol,
-                )
-                WriteCommandAction.runWriteCommandAction(project) {
-                    androidDirectoryHelper.saveDrawableFile(
-                        drawableResourceFileContent = materialSymbolsDialogViewModel.getDrawableResourceFileContent(
-                            materialSymbol = selectedMaterialSymbol,
-                        ),
-                        fileName = fileName,
-                    )
-                }
-            } catch (
-                exception: Exception,
-            ) {
-                showErrorDialog(
-                    errorMessage = "Failed to download the icons: ${exception.message}",
-                )
-                close(CLOSE_EXIT_CODE)
-            }
-        }
         super.doOKAction()
+        materialSymbolsDialogPanel?.saveSelectedDrawableResources()
     }
 
     override fun dispose() {
         super.dispose()
-        coroutineScope.cancel()
+        materialSymbolsDialogPanel?.dispose()
     }
 
     private fun initDialogUI() {
