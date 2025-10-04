@@ -19,6 +19,7 @@ internal class MyCellRenderer(
     private val coroutineScope: CoroutineScope,
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
     private val remoteIconLoader: RemoteIconLoader,
+    private val onCellSelected: (Int) -> Unit,
 ) : ListCellRenderer<JCheckBox> {
     private val iconLabel = JLabel()
     private val textLabel = JLabel()
@@ -84,6 +85,7 @@ internal class MyCellRenderer(
         if (isSelected) {
             value.background = list.selectionBackground
             textLabel.foreground = list.selectionForeground
+            onCellSelected(index)
         } else {
             value.background = list.background
             textLabel.foreground = list.foreground

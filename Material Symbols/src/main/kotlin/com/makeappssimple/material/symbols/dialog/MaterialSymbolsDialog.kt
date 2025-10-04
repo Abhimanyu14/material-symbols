@@ -69,6 +69,8 @@ public class MaterialSymbolsDialog(
     private val listPanel = JPanel(
         BorderLayout(),
     )
+    private val previewLabel: JLabel = JLabel()
+    private var currentPreviewMaterialSymbol: String = "10k"
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
     // endregion
 
@@ -270,12 +272,12 @@ public class MaterialSymbolsDialog(
     }
 
     private fun createPreviewPanel(): JLabel {
-        return JLabel().apply {
+        return previewLabel.apply {
             icon = ScaledIcon(
                 icon = RemoteUrlIcon(
                     coroutineScope = coroutineScope,
                     remoteIconLoader = remoteIconLoader,
-                    iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/10k/default/48px.svg",
+                    iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
                     onIconLoaded = {
                         repaint()
                     },
@@ -319,6 +321,30 @@ public class MaterialSymbolsDialog(
             coroutineScope = coroutineScope,
             materialSymbolsDialogViewModel = viewModel,
             remoteIconLoader = remoteIconLoader,
+            onCellSelected = { selectedCellIndex ->
+                previewLabel.apply {
+                    val updatedSelectedMaterialSymbol = materialSymbolCheckBoxList.getItemAt(
+                        selectedCellIndex
+                    )?.name.orEmpty()
+                    if (currentPreviewMaterialSymbol != updatedSelectedMaterialSymbol) {
+                        currentPreviewMaterialSymbol = updatedSelectedMaterialSymbol
+                        icon = ScaledIcon(
+                            icon = RemoteUrlIcon(
+                                coroutineScope = coroutineScope,
+                                remoteIconLoader = remoteIconLoader,
+                                iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${
+                                    currentPreviewMaterialSymbol
+                                }/default/48px.svg",
+                                onIconLoaded = {
+                                    repaint()
+                                },
+                            ),
+                            width = previewIconSize,
+                            height = previewIconSize,
+                        )
+                    }
+                }
+            },
         )
         initListeners()
     }
