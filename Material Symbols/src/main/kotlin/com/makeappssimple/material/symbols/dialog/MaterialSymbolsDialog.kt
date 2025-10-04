@@ -45,13 +45,12 @@ import kotlinx.coroutines.swing.Swing
 private const val dialogTitle = "Material Symbols"
 private const val minimumHeight = 600
 private const val minimumWidth = 700
-private const val previewIconSize = 96
 
 public class MaterialSymbolsDialog(
     private val project: Project,
 ) : DialogWrapper(project) {
-    // region coroutines
-    private val coroutineScope = CoroutineScope(
+    // region coroutine
+    private val coroutineScope: CoroutineScope = CoroutineScope(
         context = SupervisorJob() + Dispatchers.Swing,
     )
     // endregion
@@ -67,7 +66,7 @@ public class MaterialSymbolsDialog(
     private val progressBar = JProgressBar()
     private val searchTextField = SearchTextField()
     private val listPanel = JPanel(BorderLayout())
-    private val previewLabel: JLabel = JLabel()
+    private val iconPreviewLabel = IconPreviewLabel()
     private var currentPreviewMaterialSymbol: String = "10k"
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
     // endregion
@@ -223,20 +222,21 @@ public class MaterialSymbolsDialog(
     }
 
     private fun createPreviewPanel(): JLabel {
-        return previewLabel.apply {
-            icon = ScaledIcon(
-                icon = RemoteUrlIcon(
-                    coroutineScope = coroutineScope,
-                    remoteIconLoader = remoteIconLoader,
-                    iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
-                    onIconLoaded = {
-                        repaint()
-                    },
+        return iconPreviewLabel.apply {
+            updateIcon(
+                updatedIcon = ScaledIcon(
+                    icon = RemoteUrlIcon(
+                        coroutineScope = coroutineScope,
+                        remoteIconLoader = remoteIconLoader,
+                        iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
+                        onIconLoaded = {
+                            repaint()
+                        },
+                    ),
+                    width = previewIconSize,
+                    height = previewIconSize,
                 ),
-                width = previewIconSize,
-                height = previewIconSize,
             )
-            size = Dimension(previewIconSize, previewIconSize)
         }
     }
 
@@ -262,13 +262,13 @@ public class MaterialSymbolsDialog(
             materialSymbolsDialogViewModel = viewModel,
             remoteIconLoader = remoteIconLoader,
             onCellSelected = { selectedCellIndex ->
-                previewLabel.apply {
-                    val updatedSelectedMaterialSymbol = materialSymbolCheckBoxList.getItemAt(
-                        selectedCellIndex
-                    )?.name.orEmpty()
-                    if (currentPreviewMaterialSymbol != updatedSelectedMaterialSymbol) {
-                        currentPreviewMaterialSymbol = updatedSelectedMaterialSymbol
-                        icon = ScaledIcon(
+                val updatedSelectedMaterialSymbol = materialSymbolCheckBoxList.getItemAt(
+                    selectedCellIndex
+                )?.name.orEmpty()
+                if (currentPreviewMaterialSymbol != updatedSelectedMaterialSymbol) {
+                    currentPreviewMaterialSymbol = updatedSelectedMaterialSymbol
+                    iconPreviewLabel.updateIcon(
+                        updatedIcon = ScaledIcon(
                             icon = RemoteUrlIcon(
                                 coroutineScope = coroutineScope,
                                 remoteIconLoader = remoteIconLoader,
@@ -281,8 +281,8 @@ public class MaterialSymbolsDialog(
                             ),
                             width = previewIconSize,
                             height = previewIconSize,
-                        )
-                    }
+                        ),
+                    )
                 }
             },
         )
