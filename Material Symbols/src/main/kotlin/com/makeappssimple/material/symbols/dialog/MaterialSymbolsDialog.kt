@@ -4,8 +4,6 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.PsiDirectory
-import com.intellij.psi.PsiFile
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import javax.swing.JComponent
@@ -64,19 +62,17 @@ public class MaterialSymbolsDialog(
                 )
             }
         )
-        val drawableDirectory: PsiDirectory = androidDirectoryHelper.getDrawableDirectory() ?: return
         for (selectedMaterialSymbol in materialSymbolsDialogViewModel.selectedMaterialSymbols) {
             try {
-                val fileName = materialSymbolsDialogViewModel.getFileName(
+                val fileName: String = materialSymbolsDialogViewModel.getFileName(
                     materialSymbol = selectedMaterialSymbol,
                 )
                 WriteCommandAction.runWriteCommandAction(project) {
-                    val drawableFile: PsiFile = drawableDirectory.createFile(fileName)
-                    androidDirectoryHelper.downloadDrawableFile(
-                        drawableFile = drawableFile,
+                    androidDirectoryHelper.saveDrawableFile(
                         drawableResourceFileContent = materialSymbolsDialogViewModel.getDrawableResourceFileContent(
                             materialSymbol = selectedMaterialSymbol,
                         ),
+                        fileName = fileName,
                     )
                 }
             } catch (
@@ -101,11 +97,9 @@ public class MaterialSymbolsDialog(
         isOKActionEnabled = false
     }
 
-    // region error dialog
     private fun showErrorDialog(
         errorMessage: String,
     ) {
         Messages.showErrorDialog(project, errorMessage, "Error")
     }
-    // endregion
 }

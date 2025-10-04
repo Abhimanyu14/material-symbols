@@ -21,7 +21,32 @@ internal class AndroidDirectoryHelper(
     private val project: Project,
     private val showErrorDialog: (errorMessage: String) -> Unit,
 ) {
-    fun getDrawableDirectory(): PsiDirectory? {
+    fun saveDrawableFile(
+        drawableResourceFileContent: String,
+        fileName: String,
+    ) {
+        val drawableDirectory: PsiDirectory = getDrawableDirectory() ?: return
+        val drawableFile: PsiFile = drawableDirectory.createFile(fileName)
+        try {
+            WriteCommandAction.runWriteCommandAction(project) {
+                val psiDocumentManager = PsiDocumentManager.getInstance(project)
+                val document = psiDocumentManager.getDocument(drawableFile)
+                if (document != null) {
+                    document.setText(drawableResourceFileContent)
+                    psiDocumentManager.commitDocument(document)
+                }
+                drawableFile.virtualFile?.let {
+                    FileEditorManager.getInstance(project).openFile(it, true)
+                }
+            }
+        } catch (
+            exception: Exception,
+        ) {
+            showErrorDialog("Error downloading or saving file: ${exception.message}")
+        }
+    }
+
+    private fun getDrawableDirectory(): PsiDirectory? {
         if (!isAndroidPluginInstalled()) {
             showErrorDialog("Android support plugin is not enabled!")
             return null
@@ -40,29 +65,6 @@ internal class AndroidDirectoryHelper(
             // This is a safeguard, the check above should prevent this.
             showErrorDialog("Android support is not available.")
             null
-        }
-    }
-
-    fun downloadDrawableFile(
-        drawableFile: PsiFile,
-        drawableResourceFileContent: String,
-    ) {
-        try {
-            WriteCommandAction.runWriteCommandAction(project) {
-                val psiDocumentManager = PsiDocumentManager.getInstance(project)
-                val document = psiDocumentManager.getDocument(drawableFile)
-                if (document != null) {
-                    document.setText(drawableResourceFileContent)
-                    psiDocumentManager.commitDocument(document)
-                }
-                drawableFile.virtualFile?.let {
-                    FileEditorManager.getInstance(project).openFile(it, true)
-                }
-            }
-        } catch (
-            exception: Exception,
-        ) {
-            showErrorDialog("Error downloading or saving file: ${exception.message}")
         }
     }
 
