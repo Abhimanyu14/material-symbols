@@ -231,10 +231,6 @@ internal class MaterialSymbolsDialogViewModel(
         return "ic_${sanitizedFileName}${style}${weight}${filledValue}${grade}${size}.xml"
     }
 
-    fun dispose() {
-        coroutineScope.cancel()
-    }
-
     private fun getMaterialSymbolStateCacheKey(
         materialSymbol: MaterialSymbol,
     ): String {

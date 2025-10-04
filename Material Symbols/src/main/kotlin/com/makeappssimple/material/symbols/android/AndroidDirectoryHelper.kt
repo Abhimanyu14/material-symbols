@@ -4,9 +4,12 @@ import com.android.tools.idea.projectsystem.SourceProviderManager
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.android.facet.AndroidFacet
 
@@ -16,15 +19,61 @@ import org.jetbrains.android.facet.AndroidFacet
  */
 internal class AndroidDirectoryHelper(
     private val project: Project,
+    private val showErrorDialog: (errorMessage: String) -> Unit,
 ) {
-    fun isAndroidPluginInstalled(): Boolean {
+    fun getDrawableDirectory(): PsiDirectory? {
+        if (!isAndroidPluginInstalled()) {
+            showErrorDialog("Android support plugin is not enabled!")
+            return null
+        }
+        return try {
+            val drawableDirectory = getPsiDrawableDirectory()
+            if (drawableDirectory == null) {
+                showErrorDialog("Could not find or create a drawable directory. Is this an Android project?")
+                null
+            } else {
+                drawableDirectory
+            }
+        } catch (
+            _: NoClassDefFoundError,
+        ) {
+            // This is a safeguard, the check above should prevent this.
+            showErrorDialog("Android support is not available.")
+            null
+        }
+    }
+
+    fun downloadDrawableFile(
+        drawableFile: PsiFile,
+        drawableResourceFileContent: String,
+    ) {
+        try {
+            WriteCommandAction.runWriteCommandAction(project) {
+                val psiDocumentManager = PsiDocumentManager.getInstance(project)
+                val document = psiDocumentManager.getDocument(drawableFile)
+                if (document != null) {
+                    document.setText(drawableResourceFileContent)
+                    psiDocumentManager.commitDocument(document)
+                }
+                drawableFile.virtualFile?.let {
+                    FileEditorManager.getInstance(project).openFile(it, true)
+                }
+            }
+        } catch (
+            exception: Exception,
+        ) {
+            showErrorDialog("Error downloading or saving file: ${exception.message}")
+        }
+    }
+
+    private fun isAndroidPluginInstalled(): Boolean {
         val androidPluginId = PluginId.findId("org.jetbrains.android")
         return androidPluginId != null && PluginManagerCore.isPluginInstalled(
             id = androidPluginId,
         )
     }
 
-    fun getDrawableDirectory(): PsiDirectory? {
+    private fun getPsiDrawableDirectory(): PsiDirectory? {
         val androidFacet = project.modules.firstNotNullOfOrNull {
             AndroidFacet.getInstance(it)
         } ?: return null
