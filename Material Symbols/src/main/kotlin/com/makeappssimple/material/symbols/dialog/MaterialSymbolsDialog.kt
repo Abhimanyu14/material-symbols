@@ -8,30 +8,17 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.intellij.ui.CheckBoxList
-import com.intellij.ui.SearchTextField
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
-import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
-import java.awt.BorderLayout
-import java.awt.Component
 import java.awt.Dimension
-import javax.swing.BorderFactory
 import javax.swing.BoxLayout
 import javax.swing.JComponent
 import javax.swing.JLabel
-import javax.swing.JList
 import javax.swing.JPanel
-import javax.swing.JProgressBar
-import javax.swing.JScrollPane
-import javax.swing.ListSelectionModel
-import javax.swing.event.DocumentEvent
-import javax.swing.event.DocumentListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 
 private const val dialogTitle = "Material Symbols"
@@ -48,19 +35,16 @@ public class MaterialSymbolsDialog(
     // endregion
 
     // region data
-    private val viewModel = MaterialSymbolsDialogViewModel(
+    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
         coroutineScope = coroutineScope,
     )
-    private val remoteIconLoader = RemoteIconLoader()
+    private val remoteIconLoader: RemoteIconLoader = RemoteIconLoader()
+    private var currentPreviewMaterialSymbol: String = "10k"
     // endregion
 
     // region UI elements
-    private val progressBar = JProgressBar()
-    private val searchTextField = SearchTextField()
-    private val listPanel = JPanel(BorderLayout())
-    private val iconPreviewLabel = IconPreviewLabel()
-    private var currentPreviewMaterialSymbol: String = "10k"
-    private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
+    private lateinit var iconPreviewLabel: IconPreviewLabel
+    private lateinit var contentPanel: ContentPanel
     // endregion
 
     init {
@@ -73,6 +57,7 @@ public class MaterialSymbolsDialog(
         return JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             minimumSize = Dimension(minimumWidth, minimumHeight)
+
             add(createOptionsPanel())
             add(createPreviewPanel())
             add(createContentPanel())
@@ -81,16 +66,16 @@ public class MaterialSymbolsDialog(
 
     override fun doOKAction() {
         val drawableDirectory: PsiDirectory = getDrawableDirectory() ?: return
-        for (selectedMaterialSymbol in viewModel.selectedMaterialSymbols) {
+        for (selectedMaterialSymbol in materialSymbolsDialogViewModel.selectedMaterialSymbols) {
             try {
-                val fileName = viewModel.getFileName(
+                val fileName = materialSymbolsDialogViewModel.getFileName(
                     materialSymbol = selectedMaterialSymbol,
                 )
                 WriteCommandAction.runWriteCommandAction(project) {
                     val drawableFile: PsiFile = drawableDirectory.createFile(fileName)
                     downloadDrawableFile(
                         drawableFile = drawableFile,
-                        drawableResourceFileContent = viewModel.getDrawableResourceFileContent(
+                        drawableResourceFileContent = materialSymbolsDialogViewModel.getDrawableResourceFileContent(
                             materialSymbol = selectedMaterialSymbol,
                         ),
                     )
@@ -98,7 +83,7 @@ public class MaterialSymbolsDialog(
             } catch (
                 exception: Exception,
             ) {
-                hideProgressBar()
+                contentPanel.hideProgressBar()
                 showErrorDialog(
                     message = "Failed to download the icons: ${exception.message}",
                 )
@@ -141,42 +126,58 @@ public class MaterialSymbolsDialog(
 
     override fun dispose() {
         super.dispose()
-        viewModel.dispose()
+        materialSymbolsDialogViewModel.dispose()
         coroutineScope.cancel()
+    }
+
+    private fun initUI() {
+        title = dialogTitle
+        isOKActionEnabled = false
+    }
+
+    private fun fetchData() {
+        contentPanel.loadAllIcons(
+            onError = { exception ->
+                showErrorDialog(
+                    message = "Failed to load icons: ${exception.message}",
+                )
+                close(CLOSE_EXIT_CODE)
+            },
+        )
     }
 
     private fun createOptionsPanel(): JPanel {
         return OptionsPanel(
-            initialFilledValue = viewModel.isFilled,
-            initialGrade = viewModel.selectedGrade,
-            initialSize = viewModel.selectedSize,
-            initialStyle = viewModel.selectedStyle,
-            initialWeight = viewModel.selectedWeight,
+            initialFilledValue = materialSymbolsDialogViewModel.isFilled,
+            initialGrade = materialSymbolsDialogViewModel.selectedGrade,
+            initialSize = materialSymbolsDialogViewModel.selectedSize,
+            initialStyle = materialSymbolsDialogViewModel.selectedStyle,
+            initialWeight = materialSymbolsDialogViewModel.selectedWeight,
             onFilledValueChange = {
-                viewModel.isFilled = it
-                repaintMaterialSymbolCheckBoxList()
+                materialSymbolsDialogViewModel.isFilled = it
+                contentPanel.repaintMaterialSymbolCheckBoxList()
             },
             onGradeChange = {
-                viewModel.selectedGrade = it
-                repaintMaterialSymbolCheckBoxList()
+                materialSymbolsDialogViewModel.selectedGrade = it
+                contentPanel.repaintMaterialSymbolCheckBoxList()
             },
             onSizeChange = {
-                viewModel.selectedSize = it
-                repaintMaterialSymbolCheckBoxList()
+                materialSymbolsDialogViewModel.selectedSize = it
+                contentPanel.repaintMaterialSymbolCheckBoxList()
             },
             onStyleChange = {
-                viewModel.selectedStyle = it
-                repaintMaterialSymbolCheckBoxList()
+                materialSymbolsDialogViewModel.selectedStyle = it
+                contentPanel.repaintMaterialSymbolCheckBoxList()
             },
             onWeightChange = {
-                viewModel.selectedWeight = it
-                repaintMaterialSymbolCheckBoxList()
+                materialSymbolsDialogViewModel.selectedWeight = it
+                contentPanel.repaintMaterialSymbolCheckBoxList()
             },
         )
     }
 
     private fun createPreviewPanel(): JLabel {
-        return iconPreviewLabel.apply {
+        iconPreviewLabel = IconPreviewLabel().apply {
             updateIcon(
                 updatedIcon = ScaledIcon(
                     icon = RemoteUrlIcon(
@@ -192,33 +193,18 @@ public class MaterialSymbolsDialog(
                 ),
             )
         }
+        return iconPreviewLabel
     }
 
     private fun createContentPanel(): JPanel {
-        return JPanel(BorderLayout()).apply {
-            add(searchTextField, BorderLayout.NORTH)
-            add(listPanel, BorderLayout.CENTER)
-        }
-    }
-
-    private fun initUI() {
-        title = dialogTitle
-        isOKActionEnabled = false
-        progressBar.isIndeterminate = true
-
-        materialSymbolCheckBoxList.selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
-        materialSymbolCheckBoxList.layoutOrientation = JList.HORIZONTAL_WRAP
-        materialSymbolCheckBoxList.visibleRowCount = -1
-
-        materialSymbolCheckBoxList.cellRenderer = MyCellRenderer(
-            checkBoxList = materialSymbolCheckBoxList,
+        contentPanel = ContentPanel(
             coroutineScope = coroutineScope,
-            materialSymbolsDialogViewModel = viewModel,
             remoteIconLoader = remoteIconLoader,
-            onCellSelected = { selectedCellIndex ->
-                val updatedSelectedMaterialSymbol = materialSymbolCheckBoxList.getItemAt(
-                    selectedCellIndex
-                )?.name.orEmpty()
+            materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
+            updateOkButtonEnabled = {
+                isOKActionEnabled = materialSymbolsDialogViewModel.selectedMaterialSymbols.isNotEmpty()
+            },
+            onPreviewMaterialSymbolUpdated = { updatedSelectedMaterialSymbol ->
                 if (currentPreviewMaterialSymbol != updatedSelectedMaterialSymbol) {
                     currentPreviewMaterialSymbol = updatedSelectedMaterialSymbol
                     iconPreviewLabel.updateIcon(
@@ -238,100 +224,9 @@ public class MaterialSymbolsDialog(
                         ),
                     )
                 }
-            },
+            }
         )
-        initListeners()
-    }
-
-    private fun initListeners() {
-        materialSymbolCheckBoxList.setCheckBoxListListener { index, isChecked ->
-            materialSymbolCheckBoxList.getItemAt(index)?.let {
-                if (isChecked) {
-                    viewModel.selectedMaterialSymbols.add(
-                        element = it,
-                    )
-                } else {
-                    viewModel.selectedMaterialSymbols.remove(
-                        element = it,
-                    )
-                }
-            }
-            isOKActionEnabled = viewModel.selectedMaterialSymbols.isNotEmpty()
-        }
-        searchTextField.addDocumentListener(
-            object : DocumentListener {
-                override fun insertUpdate(
-                    e: DocumentEvent?,
-                ) {
-                    filterMaterialSymbols()
-                }
-
-                override fun removeUpdate(
-                    e: DocumentEvent?,
-                ) {
-                    filterMaterialSymbols()
-                }
-
-                override fun changedUpdate(
-                    e: DocumentEvent?,
-                ) {
-                    filterMaterialSymbols()
-                }
-            },
-        )
-    }
-
-    private fun fetchData() {
-        showProgressBar()
-        coroutineScope.launch {
-            try {
-                viewModel.getAllIcons()
-                viewModel.allMaterialSymbols.forEach { materialSymbol ->
-                    materialSymbolCheckBoxList.addItem(materialSymbol, materialSymbol.title, false)
-                }
-                val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
-                    border = BorderFactory.createEmptyBorder()
-                }
-                addToListPanelCenter(
-                    component = scrollPane,
-                )
-                hideProgressBar()
-                listPanel.revalidate()
-                listPanel.repaint()
-            } catch (
-                exception: Exception,
-            ) {
-                hideProgressBar()
-                showErrorDialog(
-                    message = "Failed to load icons: ${exception.message}",
-                )
-                close(CLOSE_EXIT_CODE)
-            }
-        }
-    }
-
-    private fun filterMaterialSymbols() {
-        val selectedMaterialSymbolsSet = viewModel.selectedMaterialSymbols.toSet()
-        val filteredMaterialSymbols = if (searchTextField.text.isBlank()) {
-            viewModel.allMaterialSymbols
-        } else {
-            viewModel.allMaterialSymbols.filter { materialSymbol ->
-                materialSymbol.title.contains(
-                    other = searchTextField.text,
-                    ignoreCase = true,
-                )
-            }
-        }
-        materialSymbolCheckBoxList.clear()
-        filteredMaterialSymbols.forEach { filteredMaterialSymbol ->
-            materialSymbolCheckBoxList.addItem(
-                filteredMaterialSymbol,
-                filteredMaterialSymbol.title,
-                selectedMaterialSymbolsSet.contains(
-                    element = filteredMaterialSymbol,
-                ),
-            )
-        }
+        return contentPanel
     }
 
     private fun downloadDrawableFile(
@@ -359,33 +254,11 @@ public class MaterialSymbolsDialog(
         }
     }
 
-    private fun addToListPanelCenter(
-        component: Component,
-    ) {
-        listPanel.add(component, BorderLayout.CENTER)
-    }
-
-    private fun repaintMaterialSymbolCheckBoxList() {
-        materialSymbolCheckBoxList.repaint()
-    }
-
     // region error dialog
     private fun showErrorDialog(
         message: String,
     ) {
         Messages.showErrorDialog(project, message, "Error")
-    }
-    // endregion
-
-    // region progressbar
-    private fun showProgressBar() {
-        addToListPanelCenter(
-            component = progressBar,
-        )
-    }
-
-    private fun hideProgressBar() {
-        listPanel.remove(progressBar)
     }
     // endregion
 }
