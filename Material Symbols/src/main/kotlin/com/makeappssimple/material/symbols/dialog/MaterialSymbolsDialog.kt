@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 
 private const val dialogTitle = "Material Symbols"
@@ -201,18 +202,19 @@ public class MaterialSymbolsDialog(
     }
 
     private fun updatePreviewIcon() {
-        iconPreviewLabel.updateIcon(
-            updatedIcon = RemoteUrlIcon(
-                coroutineScope = coroutineScope,
-                iconsCache = iconsCache,
+        coroutineScope.launch {
+            val icon = iconsCache.getIcon(
                 iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
-                width = previewIconSize,
-                height = previewIconSize,
-                onIconLoaded = {
-                    repaint()
-                },
-            ),
-        )
+            )
+            icon?.let {
+                iconPreviewLabel.updateIcon(
+                    updatedIcon = RemoteUrlIcon(
+                        icon = icon,
+                    ),
+                )
+                iconPreviewLabel.repaint()
+            }
+        }
     }
 
     private fun downloadDrawableFile(
