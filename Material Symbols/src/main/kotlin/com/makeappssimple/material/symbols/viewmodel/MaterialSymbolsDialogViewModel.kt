@@ -17,11 +17,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 
 // Default values for URL construction
-private val DEFAULT_STYLE = MaterialSymbolsStyle.ROUNDED
-private const val DEFAULT_FILL = false
-private val DEFAULT_WEIGHT = MaterialSymbolsWeight.W400
+private const val DEFAULT_FILLED = false
 private val DEFAULT_GRADE = MaterialSymbolsGrade.GRADE_0
 private val DEFAULT_SIZE = MaterialSymbolsSize.S24
+private val DEFAULT_STYLE = MaterialSymbolsStyle.ROUNDED
+private val DEFAULT_WEIGHT = MaterialSymbolsWeight.W400
 
 private const val cacheDirectoryFileName = "material-symbols-icons"
 
@@ -38,11 +38,11 @@ internal class MaterialSymbolsDialogViewModel(
     // endregion
 
     // region UI state
-    var selectedStyle: MaterialSymbolsStyle = DEFAULT_STYLE
-    var selectedFill: Boolean = DEFAULT_FILL
-    var selectedWeight: MaterialSymbolsWeight = DEFAULT_WEIGHT
+    var isFilled: Boolean = DEFAULT_FILLED
     var selectedGrade: MaterialSymbolsGrade = DEFAULT_GRADE
     var selectedSize: MaterialSymbolsSize = DEFAULT_SIZE
+    var selectedStyle: MaterialSymbolsStyle = DEFAULT_STYLE
+    var selectedWeight: MaterialSymbolsWeight = DEFAULT_WEIGHT
     // endregion
 
     suspend fun getAllIcons() {
@@ -117,7 +117,7 @@ internal class MaterialSymbolsDialogViewModel(
                 }",
             )
         }
-        if (selectedFill) {
+        if (isFilled) {
             options.add(
                 element = "fill1",
             )
@@ -172,7 +172,7 @@ internal class MaterialSymbolsDialogViewModel(
                 }",
             )
         }
-        if (selectedFill) {
+        if (isFilled) {
             options.add(
                 element = "fill1",
             )
@@ -211,7 +211,7 @@ internal class MaterialSymbolsDialogViewModel(
         } else {
             ""
         }
-        val fill = if (selectedFill) {
+        val filledValue = if (isFilled) {
             "_filled"
         } else {
             ""
@@ -228,7 +228,7 @@ internal class MaterialSymbolsDialogViewModel(
             ""
         }
         val size = "_${selectedSize.value}dp"
-        return "ic_${sanitizedFileName}${style}${weight}${fill}${grade}${size}.xml"
+        return "ic_${sanitizedFileName}${style}${weight}${filledValue}${grade}${size}.xml"
     }
 
     fun dispose() {
@@ -238,6 +238,6 @@ internal class MaterialSymbolsDialogViewModel(
     private fun getMaterialSymbolStateCacheKey(
         materialSymbol: MaterialSymbol,
     ): String {
-        return "${materialSymbol.name}:${selectedStyle.value}:${selectedWeight.value}::${selectedFill}${selectedGrade.value}:${selectedSize.value}"
+        return "${materialSymbol.name}:${selectedStyle.value}:${selectedWeight.value}::${isFilled}${selectedGrade.value}:${selectedSize.value}"
     }
 }

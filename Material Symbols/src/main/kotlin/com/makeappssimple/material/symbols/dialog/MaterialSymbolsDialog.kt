@@ -3,7 +3,6 @@ package com.makeappssimple.material.symbols.dialog
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
@@ -13,19 +12,12 @@ import com.intellij.ui.CheckBoxList
 import com.intellij.ui.SearchTextField
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
 import com.makeappssimple.material.symbols.model.MaterialSymbol
-import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
-import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
-import com.makeappssimple.material.symbols.model.MaterialSymbolsStyle
-import com.makeappssimple.material.symbols.model.MaterialSymbolsWeight
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
-import java.awt.FlowLayout
-import java.awt.event.ItemEvent
 import javax.swing.BorderFactory
 import javax.swing.BoxLayout
-import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JList
@@ -154,71 +146,33 @@ public class MaterialSymbolsDialog(
     }
 
     private fun createOptionsPanel(): JPanel {
-        return JPanel(FlowLayout(FlowLayout.LEFT)).apply {
-            // region filled
-            val fillCheckBox = JCheckBox("Filled")
-            fillCheckBox.isSelected = viewModel.selectedFill
-            fillCheckBox.addActionListener { actionEvent ->
-                viewModel.selectedFill = (actionEvent.source as JCheckBox).isSelected
-                onOptionsUpdated()
-            }
-            add(fillCheckBox)
-            // endregion
-
-            // region style
-            add(JLabel("Style:"))
-            val styleComboBox = ComboBox(
-                MaterialSymbolsStyle.values(),
-            )
-            styleComboBox.selectedItem = viewModel.selectedStyle
-            styleComboBox.addItemListener { itemEvent ->
-                if (itemEvent.stateChange == ItemEvent.SELECTED) {
-                    viewModel.selectedStyle = itemEvent.item as MaterialSymbolsStyle
-                    onOptionsUpdated()
-                }
-            }
-            add(styleComboBox)
-            // endregion
-
-            // region weight
-            add(JLabel("Weight:"))
-            val weightComboBox = ComboBox(MaterialSymbolsWeight.values())
-            weightComboBox.selectedItem = viewModel.selectedWeight
-            weightComboBox.addItemListener { itemEvent ->
-                if (itemEvent.stateChange == ItemEvent.SELECTED) {
-                    viewModel.selectedWeight = itemEvent.item as MaterialSymbolsWeight
-                    onOptionsUpdated()
-                }
-            }
-            add(weightComboBox)
-            // endregion
-
-            // region grade
-            add(JLabel("Grade:"))
-            val gradeComboBox = ComboBox(MaterialSymbolsGrade.values())
-            gradeComboBox.selectedItem = viewModel.selectedGrade
-            gradeComboBox.addItemListener { itemEvent ->
-                if (itemEvent.stateChange == ItemEvent.SELECTED) {
-                    viewModel.selectedGrade = itemEvent.item as MaterialSymbolsGrade
-                    onOptionsUpdated()
-                }
-            }
-            add(gradeComboBox)
-            // endregion
-
-            // region size
-            add(JLabel("Size:"))
-            val sizeComboBox = ComboBox(MaterialSymbolsSize.values())
-            sizeComboBox.selectedItem = viewModel.selectedSize
-            sizeComboBox.addItemListener { itemEvent ->
-                if (itemEvent.stateChange == ItemEvent.SELECTED) {
-                    viewModel.selectedSize = itemEvent.item as MaterialSymbolsSize
-                    onOptionsUpdated()
-                }
-            }
-            add(sizeComboBox)
-            // endregion
-        }
+        return OptionsPanel(
+            initialFilledValue = viewModel.isFilled,
+            initialGrade = viewModel.selectedGrade,
+            initialSize = viewModel.selectedSize,
+            initialStyle = viewModel.selectedStyle,
+            initialWeight = viewModel.selectedWeight,
+            onFilledValueChange = {
+                viewModel.isFilled = it
+                repaintMaterialSymbolCheckBoxList()
+            },
+            onGradeChange = {
+                viewModel.selectedGrade = it
+                repaintMaterialSymbolCheckBoxList()
+            },
+            onSizeChange = {
+                viewModel.selectedSize = it
+                repaintMaterialSymbolCheckBoxList()
+            },
+            onStyleChange = {
+                viewModel.selectedStyle = it
+                repaintMaterialSymbolCheckBoxList()
+            },
+            onWeightChange = {
+                viewModel.selectedWeight = it
+                repaintMaterialSymbolCheckBoxList()
+            },
+        )
     }
 
     private fun createPreviewPanel(): JLabel {
@@ -411,7 +365,7 @@ public class MaterialSymbolsDialog(
         listPanel.add(component, BorderLayout.CENTER)
     }
 
-    private fun onOptionsUpdated() {
+    private fun repaintMaterialSymbolCheckBoxList() {
         materialSymbolCheckBoxList.repaint()
     }
 
