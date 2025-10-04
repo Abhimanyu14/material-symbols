@@ -177,20 +177,8 @@ public class MaterialSymbolsDialog(
     }
 
     private fun createPreviewPanel(): JLabel {
-        iconPreviewLabel = IconPreviewLabel().apply {
-            updateIcon(
-                updatedIcon = RemoteUrlIcon(
-                    coroutineScope = coroutineScope,
-                    iconsCache = iconsCache,
-                    iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
-                    width = previewIconSize,
-                    height = previewIconSize,
-                    onIconLoaded = {
-                        repaint()
-                    },
-                ),
-            )
-        }
+        iconPreviewLabel = IconPreviewLabel()
+        updatePreviewIcon()
         return iconPreviewLabel
     }
 
@@ -205,24 +193,26 @@ public class MaterialSymbolsDialog(
             onPreviewMaterialSymbolUpdated = { updatedSelectedMaterialSymbol ->
                 if (currentPreviewMaterialSymbol != updatedSelectedMaterialSymbol) {
                     currentPreviewMaterialSymbol = updatedSelectedMaterialSymbol
-                    iconPreviewLabel.updateIcon(
-                        updatedIcon = RemoteUrlIcon(
-                            coroutineScope = coroutineScope,
-                            iconsCache = iconsCache,
-                            iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${
-                                currentPreviewMaterialSymbol
-                            }/default/48px.svg",
-                            width = previewIconSize,
-                            height = previewIconSize,
-                            onIconLoaded = {
-                                repaint()
-                            },
-                        ),
-                    )
+                    updatePreviewIcon()
                 }
             }
         )
         return contentPanel
+    }
+
+    private fun updatePreviewIcon() {
+        iconPreviewLabel.updateIcon(
+            updatedIcon = RemoteUrlIcon(
+                coroutineScope = coroutineScope,
+                iconsCache = iconsCache,
+                iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
+                width = previewIconSize,
+                height = previewIconSize,
+                onIconLoaded = {
+                    repaint()
+                },
+            ),
+        )
     }
 
     private fun downloadDrawableFile(
