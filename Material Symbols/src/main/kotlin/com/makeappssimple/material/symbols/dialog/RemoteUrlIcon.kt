@@ -3,6 +3,7 @@ package com.makeappssimple.material.symbols.dialog
 import com.intellij.openapi.util.IconLoader
 import java.awt.Component
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.net.URI
 import javax.swing.Icon
 import kotlinx.coroutines.CoroutineScope
@@ -15,19 +16,27 @@ internal class RemoteUrlIcon(
     private val coroutineScope: CoroutineScope,
     private val iconsCache: IconsCache,
     private val iconUrl: String,
+    private val width: Int = defaultIconSize,
+    private val height: Int = defaultIconSize,
     private val onIconLoaded: () -> Unit,
 ) : Icon {
     override fun paintIcon(
-        c: Component,
-        g: Graphics,
+        c: Component?,
+        g: Graphics?,
         x: Int,
         y: Int,
     ) {
-        val icon = iconsCache.getIcon(
+        val icon: Icon? = iconsCache.getIcon(
             iconUrl = iconUrl,
         )
         if (icon != null) {
-            icon.paintIcon(c, g, x, y)
+            paintScaledIcon(
+                icon = icon,
+                c = c,
+                g = g,
+                x = x,
+                y = y,
+            )
         } else {
             coroutineScope.launch(
                 context = Dispatchers.IO,
@@ -36,6 +45,22 @@ internal class RemoteUrlIcon(
                 onIconLoaded()
             }
         }
+    }
+
+    private fun paintScaledIcon(
+        icon: Icon,
+        c: Component?,
+        g: Graphics?,
+        x: Int,
+        y: Int,
+    ) {
+        val graphics2D = g?.create() as? Graphics2D
+        graphics2D?.translate(x, y)
+        val scaleX = width.toDouble() / icon.iconWidth
+        val scaleY = height.toDouble() / icon.iconHeight
+        graphics2D?.scale(scaleX, scaleY)
+        icon.paintIcon(c, graphics2D, 0, 0)
+        graphics2D?.dispose()
     }
 
     private fun loadIcon() {
@@ -58,16 +83,10 @@ internal class RemoteUrlIcon(
     }
 
     override fun getIconWidth(): Int {
-        val icon = iconsCache.getIcon(
-            iconUrl = iconUrl,
-        )
-        return icon?.iconWidth ?: defaultIconSize
+        return width
     }
 
     override fun getIconHeight(): Int {
-        val icon = iconsCache.getIcon(
-            iconUrl = iconUrl,
-        )
-        return icon?.iconHeight ?: defaultIconSize
+        return height
     }
 }
