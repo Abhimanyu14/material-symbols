@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class IconResponse(
     @SerialName("icons")
-    val icons: List<NetworkIcon>
+    val icons: List<NetworkIcon>,
 )
 
 @Serializable
@@ -14,5 +14,5 @@ internal data class NetworkIcon(
     @SerialName("name")
     val name: String,
     @SerialName("unsupported_families")
-    val unsupportedFamilies: List<String> = emptyList()
+    val unsupportedFamilies: List<String> = emptyList(),
 )

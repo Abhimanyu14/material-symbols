@@ -18,9 +18,7 @@ internal class AndroidDirectoryHelper(
     private val project: Project,
 ) {
     fun isAndroidPluginInstalled(): Boolean {
-        val androidPluginId = PluginId.findId(
-            "org.jetbrains.android",
-        )
+        val androidPluginId = PluginId.findId("org.jetbrains.android")
         return androidPluginId != null && PluginManagerCore.isPluginInstalled(
             id = androidPluginId,
         )
@@ -37,9 +35,7 @@ internal class AndroidDirectoryHelper(
         val psiManager = PsiManager.getInstance(project)
         val resourceDirectory = psiManager.findDirectory(resourceDirectoryFile) ?: return null
         var drawableDirectory: PsiDirectory? = null
-        WriteCommandAction.runWriteCommandAction(
-            project,
-        ) {
+        WriteCommandAction.runWriteCommandAction(project) {
             drawableDirectory = resourceDirectory.findSubdirectory("drawable")
                 ?: resourceDirectory.createSubdirectory("drawable")
         }

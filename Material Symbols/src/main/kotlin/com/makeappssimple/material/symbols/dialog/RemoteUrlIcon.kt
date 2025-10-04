@@ -17,14 +17,6 @@ internal class RemoteUrlIcon(
     private val iconUrl: String,
     private val onIconLoaded: () -> Unit,
 ) : Icon {
-    // TODO(Abhi): Check if this can be removed
-    /*
-    companion object {
-        private val loadingUrls = ConcurrentHashMap.newKeySet<String>()
-        private val waitingCells = ConcurrentHashMap<String, MutableSet<Pair<CheckBoxList<MaterialSymbol>, Int>>>()
-    }
-    */
-
     override fun paintIcon(
         c: Component,
         g: Graphics,
@@ -37,16 +29,6 @@ internal class RemoteUrlIcon(
         if (icon != null) {
             icon.paintIcon(c, g, x, y)
         } else {
-            // TODO(Abhi): Check if this can be removed
-            /*
-            waitingCells.computeIfAbsent(
-                iconUrl,
-            ) {
-                ConcurrentHashMap.newKeySet()
-            }.add(
-                element = checkBoxList to cellIndex,
-            )
-            */
             coroutineScope.launch(
                 context = Dispatchers.IO,
             ) {
@@ -57,12 +39,6 @@ internal class RemoteUrlIcon(
     }
 
     private fun loadIcon() {
-        // TODO(Abhi): Check if this can be removed
-        /*
-        if (!loadingUrls.add(iconUrl)) {
-            return // Already loading
-        }
-        */
         try {
             val loadedIcon = IconLoader.findIcon(
                 url = URI.create(iconUrl).toURL(),
@@ -75,29 +51,9 @@ internal class RemoteUrlIcon(
                 )
             }
         } catch (
-            exception: Exception,
+            _: Exception,
         ) {
         } finally {
-            // TODO(Abhi): Check if this can be removed
-            /*
-            loadingUrls.remove(
-                iconUrl,
-            )
-            waitingCells.remove(
-                iconUrl,
-            )?.forEach { (targetList, targetIndex) ->
-                withContext(
-                    context = Dispatchers.Swing,
-                ) {
-                    targetList.repaint(
-                        targetList.getCellBounds(
-                            targetIndex,
-                            targetIndex,
-                        ),
-                    )
-                }
-            }
-            */
         }
     }
 

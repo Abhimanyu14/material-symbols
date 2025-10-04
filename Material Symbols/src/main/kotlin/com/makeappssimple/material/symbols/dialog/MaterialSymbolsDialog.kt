@@ -66,9 +66,7 @@ public class MaterialSymbolsDialog(
     // region UI elements
     private val progressBar = JProgressBar()
     private val searchTextField = SearchTextField()
-    private val listPanel = JPanel(
-        BorderLayout(),
-    )
+    private val listPanel = JPanel(BorderLayout())
     private val previewLabel: JLabel = JLabel()
     private var currentPreviewMaterialSymbol: String = "10k"
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
@@ -81,25 +79,12 @@ public class MaterialSymbolsDialog(
     }
 
     override fun createCenterPanel(): JComponent {
-        return JPanel(
-        ).apply {
-            layout = BoxLayout(
-                this,
-                BoxLayout.Y_AXIS,
-            )
-            minimumSize = Dimension(
-                minimumWidth,
-                minimumHeight,
-            )
-            add(
-                createOptionsPanel(),
-            )
-            add(
-                createPreviewPanel(),
-            )
-            add(
-                createContentPanel(),
-            )
+        return JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            minimumSize = Dimension(minimumWidth, minimumHeight)
+            add(createOptionsPanel())
+            add(createPreviewPanel())
+            add(createContentPanel())
         }
     }
 
@@ -110,12 +95,8 @@ public class MaterialSymbolsDialog(
                 val fileName = viewModel.getFileName(
                     materialSymbol = selectedMaterialSymbol,
                 )
-                WriteCommandAction.runWriteCommandAction(
-                    project,
-                ) {
-                    val drawableFile: PsiFile = drawableDirectory.createFile(
-                        fileName,
-                    )
+                WriteCommandAction.runWriteCommandAction(project) {
+                    val drawableFile: PsiFile = drawableDirectory.createFile(fileName)
                     downloadDrawableFile(
                         drawableFile = drawableFile,
                         drawableResourceFileContent = viewModel.getDrawableResourceFileContent(
@@ -130,9 +111,7 @@ public class MaterialSymbolsDialog(
                 showErrorDialog(
                     message = "Failed to download the icons: ${exception.message}",
                 )
-                close(
-                    CLOSE_EXIT_CODE,
-                )
+                close(CLOSE_EXIT_CODE)
             }
         }
         super.doOKAction()
@@ -159,7 +138,7 @@ public class MaterialSymbolsDialog(
                 drawableDirectory
             }
         } catch (
-            noClassDefFoundError: NoClassDefFoundError,
+            _: NoClassDefFoundError,
         ) {
             // This is a safeguard, the check above should prevent this.
             showErrorDialog(
@@ -176,15 +155,9 @@ public class MaterialSymbolsDialog(
     }
 
     private fun createOptionsPanel(): JPanel {
-        return JPanel(
-            FlowLayout(
-                FlowLayout.LEFT,
-            ),
-        ).apply {
+        return JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             // region filled
-            val fillCheckBox = JCheckBox(
-                "Filled",
-            )
+            val fillCheckBox = JCheckBox("Filled")
             fillCheckBox.isSelected = viewModel.selectedFill
             fillCheckBox.addActionListener { actionEvent ->
                 viewModel.selectedFill = (actionEvent.source as JCheckBox).isSelected
@@ -194,11 +167,7 @@ public class MaterialSymbolsDialog(
             // endregion
 
             // region style
-            add(
-                JLabel(
-                    "Style:",
-                ),
-            )
+            add(JLabel("Style:"))
             val styleComboBox = ComboBox(
                 MaterialSymbolsStyle.values(),
             )
@@ -213,14 +182,8 @@ public class MaterialSymbolsDialog(
             // endregion
 
             // region weight
-            add(
-                JLabel(
-                    "Weight:",
-                ),
-            )
-            val weightComboBox = ComboBox(
-                MaterialSymbolsWeight.values(),
-            )
+            add(JLabel("Weight:"))
+            val weightComboBox = ComboBox(MaterialSymbolsWeight.values())
             weightComboBox.selectedItem = viewModel.selectedWeight
             weightComboBox.addItemListener { itemEvent ->
                 if (itemEvent.stateChange == ItemEvent.SELECTED) {
@@ -232,14 +195,8 @@ public class MaterialSymbolsDialog(
             // endregion
 
             // region grade
-            add(
-                JLabel(
-                    "Grade:",
-                ),
-            )
-            val gradeComboBox = ComboBox(
-                MaterialSymbolsGrade.values(),
-            )
+            add(JLabel("Grade:"))
+            val gradeComboBox = ComboBox(MaterialSymbolsGrade.values())
             gradeComboBox.selectedItem = viewModel.selectedGrade
             gradeComboBox.addItemListener { itemEvent ->
                 if (itemEvent.stateChange == ItemEvent.SELECTED) {
@@ -251,14 +208,8 @@ public class MaterialSymbolsDialog(
             // endregion
 
             // region size
-            add(
-                JLabel(
-                    "Size:",
-                ),
-            )
-            val sizeComboBox = ComboBox(
-                MaterialSymbolsSize.values(),
-            )
+            add(JLabel("Size:"))
+            val sizeComboBox = ComboBox(MaterialSymbolsSize.values())
             sizeComboBox.selectedItem = viewModel.selectedSize
             sizeComboBox.addItemListener { itemEvent ->
                 if (itemEvent.stateChange == ItemEvent.SELECTED) {
@@ -285,25 +236,14 @@ public class MaterialSymbolsDialog(
                 width = previewIconSize,
                 height = previewIconSize,
             )
-            size = Dimension(
-                previewIconSize,
-                previewIconSize,
-            )
+            size = Dimension(previewIconSize, previewIconSize)
         }
     }
 
     private fun createContentPanel(): JPanel {
-        return JPanel(
-            BorderLayout(),
-        ).apply {
-            add(
-                searchTextField,
-                BorderLayout.NORTH,
-            )
-            add(
-                listPanel,
-                BorderLayout.CENTER,
-            )
+        return JPanel(BorderLayout()).apply {
+            add(searchTextField, BorderLayout.NORTH)
+            add(listPanel, BorderLayout.CENTER)
         }
     }
 
@@ -393,15 +333,9 @@ public class MaterialSymbolsDialog(
             try {
                 viewModel.getAllIcons()
                 viewModel.allMaterialSymbols.forEach { materialSymbol ->
-                    materialSymbolCheckBoxList.addItem(
-                        materialSymbol,
-                        materialSymbol.title,
-                        false,
-                    )
+                    materialSymbolCheckBoxList.addItem(materialSymbol, materialSymbol.title, false)
                 }
-                val scrollPane = JScrollPane(
-                    materialSymbolCheckBoxList,
-                ).apply {
+                val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
                     border = BorderFactory.createEmptyBorder()
                 }
                 addToListPanelCenter(
@@ -417,9 +351,7 @@ public class MaterialSymbolsDialog(
                 showErrorDialog(
                     message = "Failed to load icons: ${exception.message}",
                 )
-                close(
-                    CLOSE_EXIT_CODE,
-                )
+                close(CLOSE_EXIT_CODE)
             }
         }
     }
@@ -453,30 +385,15 @@ public class MaterialSymbolsDialog(
         drawableResourceFileContent: String,
     ) {
         try {
-            WriteCommandAction.runWriteCommandAction(
-                project,
-            ) {
-                val psiDocumentManager = PsiDocumentManager.getInstance(
-                    project,
-                )
-                val document = psiDocumentManager.getDocument(
-                    drawableFile,
-                )
+            WriteCommandAction.runWriteCommandAction(project) {
+                val psiDocumentManager = PsiDocumentManager.getInstance(project)
+                val document = psiDocumentManager.getDocument(drawableFile)
                 if (document != null) {
-                    document.setText(
-                        drawableResourceFileContent,
-                    )
-                    psiDocumentManager.commitDocument(
-                        document,
-                    )
+                    document.setText(drawableResourceFileContent)
+                    psiDocumentManager.commitDocument(document)
                 }
                 drawableFile.virtualFile?.let {
-                    FileEditorManager.getInstance(
-                        project,
-                    ).openFile(
-                        it,
-                        true,
-                    )
+                    FileEditorManager.getInstance(project).openFile(it, true)
                 }
             }
         } catch (
@@ -491,10 +408,7 @@ public class MaterialSymbolsDialog(
     private fun addToListPanelCenter(
         component: Component,
     ) {
-        listPanel.add(
-            component,
-            BorderLayout.CENTER,
-        )
+        listPanel.add(component, BorderLayout.CENTER)
     }
 
     private fun onOptionsUpdated() {
@@ -505,11 +419,7 @@ public class MaterialSymbolsDialog(
     private fun showErrorDialog(
         message: String,
     ) {
-        Messages.showErrorDialog(
-            project,
-            message,
-            "Error",
-        )
+        Messages.showErrorDialog(project, message, "Error")
     }
     // endregion
 
@@ -521,9 +431,7 @@ public class MaterialSymbolsDialog(
     }
 
     private fun hideProgressBar() {
-        listPanel.remove(
-            progressBar,
-        )
+        listPanel.remove(progressBar)
     }
     // endregion
 }

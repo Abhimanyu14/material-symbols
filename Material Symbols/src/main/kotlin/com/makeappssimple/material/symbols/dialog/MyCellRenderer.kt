@@ -45,9 +45,7 @@ internal class MyCellRenderer(
     ): Component {
         if (value == null) {
             // Should not happen with CheckBoxList, but good practice
-            return JLabel(
-                "Error",
-            )
+            return JLabel("Error")
         }
 
         // Use the provided JCheckBox as the root component.
@@ -70,12 +68,7 @@ internal class MyCellRenderer(
                     materialSymbol = materialSymbol,
                 ),
                 onIconLoaded = {
-                    checkBoxList.repaint(
-                        checkBoxList.getCellBounds(
-                            index,
-                            index,
-                        ),
-                    )
+                    checkBoxList.repaint(checkBoxList.getCellBounds(index, index))
                 },
             )
             textLabel.text = "<html>${materialSymbol.title}</html>"

@@ -50,12 +50,9 @@ internal class MaterialSymbolsDialogViewModel(
             return
         }
         withContext(
-            Dispatchers.IO,
+            context = Dispatchers.IO,
         ) {
-            val cacheDir = File(
-                PathManager.getPluginTempPath(),
-                cacheDirectoryFileName,
-            )
+            val cacheDir = File(PathManager.getPluginTempPath(), cacheDirectoryFileName)
             cacheDir.mkdirs()
             allIcons = iconDataSource.getAllIcons(
                 cacheFile = cacheDir,
