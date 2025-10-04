@@ -18,7 +18,7 @@ internal class MyCellRenderer(
     private val checkBoxList: CheckBoxList<MaterialSymbol>,
     private val coroutineScope: CoroutineScope,
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
-    private val remoteIconLoader: RemoteIconLoader,
+    private val iconsCache: IconsCache,
     private val onCellSelected: (Int) -> Unit,
 ) : ListCellRenderer<JCheckBox> {
     private val iconLabel = JLabel()
@@ -63,7 +63,7 @@ internal class MyCellRenderer(
         if (materialSymbol != null) {
             iconLabel.icon = RemoteUrlIcon(
                 coroutineScope = coroutineScope,
-                remoteIconLoader = remoteIconLoader,
+                iconsCache = iconsCache,
                 iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                     materialSymbol = materialSymbol,
                 ),

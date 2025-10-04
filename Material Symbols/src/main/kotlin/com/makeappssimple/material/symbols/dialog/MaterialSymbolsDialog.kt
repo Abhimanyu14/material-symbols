@@ -38,7 +38,7 @@ public class MaterialSymbolsDialog(
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
         coroutineScope = coroutineScope,
     )
-    private val remoteIconLoader: RemoteIconLoader = RemoteIconLoader()
+    private val iconsCache: IconsCache = IconsCache()
     private var currentPreviewMaterialSymbol: String = "10k"
     // endregion
 
@@ -182,7 +182,7 @@ public class MaterialSymbolsDialog(
                 updatedIcon = ScaledIcon(
                     icon = RemoteUrlIcon(
                         coroutineScope = coroutineScope,
-                        remoteIconLoader = remoteIconLoader,
+                        iconsCache = iconsCache,
                         iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${currentPreviewMaterialSymbol}/default/48px.svg",
                         onIconLoaded = {
                             repaint()
@@ -199,7 +199,7 @@ public class MaterialSymbolsDialog(
     private fun createContentPanel(): JPanel {
         contentPanel = ContentPanel(
             coroutineScope = coroutineScope,
-            remoteIconLoader = remoteIconLoader,
+            iconsCache = iconsCache,
             materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
             updateOkButtonEnabled = {
                 isOKActionEnabled = materialSymbolsDialogViewModel.selectedMaterialSymbols.isNotEmpty()
@@ -211,7 +211,7 @@ public class MaterialSymbolsDialog(
                         updatedIcon = ScaledIcon(
                             icon = RemoteUrlIcon(
                                 coroutineScope = coroutineScope,
-                                remoteIconLoader = remoteIconLoader,
+                                iconsCache = iconsCache,
                                 iconUrl = "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${
                                     currentPreviewMaterialSymbol
                                 }/default/48px.svg",

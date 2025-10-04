@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 internal class ContentPanel(
     private val coroutineScope: CoroutineScope,
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
-    private val remoteIconLoader: RemoteIconLoader,
+    private val iconsCache: IconsCache,
     private val updateOkButtonEnabled: () -> Unit,
     private val onPreviewMaterialSymbolUpdated: (String) -> Unit,
 ) : JPanel() {
@@ -41,7 +41,7 @@ internal class ContentPanel(
             checkBoxList = materialSymbolCheckBoxList,
             coroutineScope = coroutineScope,
             materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
-            remoteIconLoader = remoteIconLoader,
+            iconsCache = iconsCache,
             onCellSelected = { selectedCellIndex ->
                 val updatedSelectedMaterialSymbol: String = materialSymbolCheckBoxList.getItemAt(
                     selectedCellIndex

@@ -13,7 +13,7 @@ private const val defaultIconSize = 60
 
 internal class RemoteUrlIcon(
     private val coroutineScope: CoroutineScope,
-    private val remoteIconLoader: RemoteIconLoader,
+    private val iconsCache: IconsCache,
     private val iconUrl: String,
     private val onIconLoaded: () -> Unit,
 ) : Icon {
@@ -23,7 +23,7 @@ internal class RemoteUrlIcon(
         x: Int,
         y: Int,
     ) {
-        val icon = remoteIconLoader.getIcon(
+        val icon = iconsCache.getIcon(
             iconUrl = iconUrl,
         )
         if (icon != null) {
@@ -45,7 +45,7 @@ internal class RemoteUrlIcon(
                 storeToCache = true,
             )
             loadedIcon?.let {
-                remoteIconLoader.cacheIcon(
+                iconsCache.cacheIcon(
                     iconUrl = iconUrl,
                     icon = loadedIcon,
                 )
@@ -58,14 +58,14 @@ internal class RemoteUrlIcon(
     }
 
     override fun getIconWidth(): Int {
-        val icon = remoteIconLoader.getIcon(
+        val icon = iconsCache.getIcon(
             iconUrl = iconUrl,
         )
         return icon?.iconWidth ?: defaultIconSize
     }
 
     override fun getIconHeight(): Int {
-        val icon = remoteIconLoader.getIcon(
+        val icon = iconsCache.getIcon(
             iconUrl = iconUrl,
         )
         return icon?.iconHeight ?: defaultIconSize

@@ -3,19 +3,19 @@ package com.makeappssimple.material.symbols.dialog
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.Icon
 
-internal class RemoteIconLoader {
-    private val iconCache = ConcurrentHashMap<String, Icon>()
+internal class IconsCache {
+    private val iconsCache = ConcurrentHashMap<String, Icon>()
 
     fun getIcon(
         iconUrl: String,
     ): Icon? {
-        return iconCache[iconUrl]
+        return iconsCache[iconUrl]
     }
 
     fun cacheIcon(
         iconUrl: String,
         icon: Icon,
     ) {
-        iconCache[iconUrl] = icon
+        iconsCache[iconUrl] = icon
     }
 }
