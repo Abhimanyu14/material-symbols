@@ -1,7 +1,6 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.CheckBoxList
-import com.intellij.ui.SearchTextField
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
@@ -12,12 +11,10 @@ import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
-import javax.swing.event.DocumentEvent
-import javax.swing.event.DocumentListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class ContentPanel(
+internal class MaterialSymbolsCheckBoxList(
     private val coroutineScope: CoroutineScope,
     private val iconsCache: IconsCache,
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
@@ -26,7 +23,6 @@ internal class ContentPanel(
     private val onPreviewMaterialSymbolUpdated: (MaterialSymbol) -> Unit,
 ) : JPanel() {
     private val progressBar = JProgressBar()
-    private val searchTextField = SearchTextField()
     private val listPanel = JPanel(BorderLayout())
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
 
@@ -76,27 +72,6 @@ internal class ContentPanel(
             }
             updateOkButtonEnabled()
         }
-        searchTextField.addDocumentListener(
-            object : DocumentListener {
-                override fun insertUpdate(
-                    e: DocumentEvent?,
-                ) {
-                    filterMaterialSymbols()
-                }
-
-                override fun removeUpdate(
-                    e: DocumentEvent?,
-                ) {
-                    filterMaterialSymbols()
-                }
-
-                override fun changedUpdate(
-                    e: DocumentEvent?,
-                ) {
-                    filterMaterialSymbols()
-                }
-            },
-        )
     }
 
     fun repaintMaterialSymbolCheckBoxList() {
@@ -118,7 +93,6 @@ internal class ContentPanel(
                     border = BorderFactory.createEmptyBorder()
                 }
                 listPanel.add(scrollPane, BorderLayout.CENTER)
-                add(searchTextField, BorderLayout.NORTH)
 
                 refreshListPanel()
             } catch (
@@ -130,10 +104,12 @@ internal class ContentPanel(
         }
     }
 
-    private fun filterMaterialSymbols() {
+    fun filterMaterialSymbols(
+        searchText: String,
+    ) {
         val selectedMaterialSymbolsSet = materialSymbolsDialogViewModel.selectedMaterialSymbols.toSet()
         materialSymbolsDialogViewModel.updateFilteredMaterialSymbols(
-            searchText = searchTextField.text,
+            searchText = searchText,
         )
         materialSymbolCheckBoxList.clear()
         materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { filteredMaterialSymbol ->

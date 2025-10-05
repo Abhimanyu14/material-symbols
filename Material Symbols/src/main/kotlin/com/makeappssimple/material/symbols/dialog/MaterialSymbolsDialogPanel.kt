@@ -41,8 +41,9 @@ internal class MaterialSymbolsDialogPanel(
     // endregion
 
     // region UI elements
-    private lateinit var iconPreviewLabel: IconPreviewLabel
-    private lateinit var contentPanel: ContentPanel
+    private lateinit var iconPreview: IconPreview
+    private lateinit var searchBar: SearchBar
+    private lateinit var materialSymbolsCheckBoxList: MaterialSymbolsCheckBoxList
     // endregion
 
     init {
@@ -77,12 +78,13 @@ internal class MaterialSymbolsDialogPanel(
         minimumSize = Dimension(minimumWidth, minimumHeight)
 
         add(createOptionsPanel())
-        add(createPreviewPanel())
-        add(createContentPanel())
+        add(createIconPreview())
+        add(createSearchBar())
+        add(createMaterialSymbolsCheckBoxList())
     }
 
     private fun fetchData() {
-        contentPanel.loadAllIcons(
+        materialSymbolsCheckBoxList.loadAllIcons(
             onError = { exception ->
                 showErrorDialog("${resourcesProvider.loadErrorPrefix} ${exception.message}")
                 closeDialog()
@@ -123,18 +125,29 @@ internal class MaterialSymbolsDialogPanel(
 
     private fun onOptionsUpdated() {
         updatePreviewIcon()
-        contentPanel.repaintMaterialSymbolCheckBoxList()
+        materialSymbolsCheckBoxList.repaintMaterialSymbolCheckBoxList()
     }
 
-    private fun createPreviewPanel(): JLabel {
-        iconPreviewLabel = IconPreviewLabel()
+    private fun createIconPreview(): JLabel {
+        iconPreview = IconPreview()
         currentPreviewMaterialSymbol = materialSymbolsDialogViewModel.filteredMaterialSymbols.firstOrNull()
         updatePreviewIcon()
-        return iconPreviewLabel
+        return iconPreview
     }
 
-    private fun createContentPanel(): JPanel {
-        contentPanel = ContentPanel(
+    private fun createSearchBar(): JPanel {
+        searchBar = SearchBar(
+            onSearchTextUpdate = { searchText ->
+                materialSymbolsCheckBoxList.filterMaterialSymbols(
+                    searchText = searchText,
+                )
+            },
+        )
+        return searchBar
+    }
+
+    private fun createMaterialSymbolsCheckBoxList(): JPanel {
+        materialSymbolsCheckBoxList = MaterialSymbolsCheckBoxList(
             coroutineScope = coroutineScope,
             iconsCache = iconsCache,
             materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
@@ -149,7 +162,7 @@ internal class MaterialSymbolsDialogPanel(
                 }
             }
         )
-        return contentPanel
+        return materialSymbolsCheckBoxList
     }
 
     private fun updatePreviewIcon() {
@@ -162,13 +175,13 @@ internal class MaterialSymbolsDialogPanel(
                 iconUrl = iconUrl,
             )
             icon?.let {
-                iconPreviewLabel.updateIcon(
+                iconPreview.updateIcon(
                     updatedIcon = RemoteUrlIcon(
                         icon = icon,
                         size = previewLabelSize,
                     ),
                 )
-                iconPreviewLabel.repaint()
+                iconPreview.repaint()
             }
         }
     }

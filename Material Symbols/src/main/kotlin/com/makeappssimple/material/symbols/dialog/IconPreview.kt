@@ -6,7 +6,7 @@ import javax.swing.JLabel
 
 internal const val previewLabelSize = 96
 
-internal class IconPreviewLabel() : JLabel() {
+internal class IconPreview() : JLabel() {
     init {
         minimumSize = Dimension(previewLabelSize, previewLabelSize)
         size = Dimension(previewLabelSize, previewLabelSize)
