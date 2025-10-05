@@ -6,6 +6,7 @@ internal class ResourcesProvider {
     private val resourceBundle = ResourceBundle.getBundle("strings")
 
     val dialogTitle: String = resourceBundle.getString("dialog.title")
+    val dialogProgress: String = resourceBundle.getString("dialog.progress")
     val errorErrorTitle: String = resourceBundle.getString("dialog.error.title")
 
     val downloadErrorPrefix: String = resourceBundle.getString("dialog.error.download.prefix")

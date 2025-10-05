@@ -6,7 +6,6 @@ import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
-import java.awt.Component
 import javax.swing.BorderFactory
 import javax.swing.JList
 import javax.swing.JPanel
@@ -35,6 +34,9 @@ internal class ContentPanel(
         layout = BorderLayout()
 
         progressBar.isIndeterminate = true
+        progressBar.isStringPainted = true
+        progressBar.string = resourcesProvider.dialogProgress
+
         materialSymbolCheckBoxList.selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
         materialSymbolCheckBoxList.layoutOrientation = JList.HORIZONTAL_WRAP
         materialSymbolCheckBoxList.visibleRowCount = -1
@@ -54,10 +56,9 @@ internal class ContentPanel(
                 }
             },
         )
-        initListeners()
-
-        add(searchTextField, BorderLayout.NORTH)
         add(listPanel, BorderLayout.CENTER)
+
+        initListeners()
     }
 
     fun initListeners() {
@@ -112,13 +113,13 @@ internal class ContentPanel(
                 materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { materialSymbol ->
                     materialSymbolCheckBoxList.addItem(materialSymbol, materialSymbol.title, false)
                 }
+                hideProgressBar()
                 val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
                     border = BorderFactory.createEmptyBorder()
                 }
-                addToListPanelCenter(
-                    component = scrollPane,
-                )
-                hideProgressBar()
+                listPanel.add(scrollPane, BorderLayout.CENTER)
+                add(searchTextField, BorderLayout.NORTH)
+
                 refreshListPanel()
             } catch (
                 exception: Exception,
@@ -146,12 +147,6 @@ internal class ContentPanel(
         }
     }
 
-    private fun addToListPanelCenter(
-        component: Component,
-    ) {
-        listPanel.add(component, BorderLayout.CENTER)
-    }
-
     private fun refreshListPanel() {
         listPanel.revalidate()
         listPanel.repaint()
@@ -159,9 +154,7 @@ internal class ContentPanel(
 
     // region progressbar
     private fun showProgressBar() {
-        addToListPanelCenter(
-            component = progressBar,
-        )
+        listPanel.add(progressBar, BorderLayout.NORTH)
     }
 
     private fun hideProgressBar() {
