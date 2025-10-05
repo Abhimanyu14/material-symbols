@@ -46,11 +46,11 @@ internal class MaterialSymbolsDialogViewModel(
     var selectedWeight: MaterialSymbolsWeight = DEFAULT_WEIGHT
     // endregion
 
-    suspend fun fetchAllIcons() {
+    suspend fun getAllIcons(): List<MaterialSymbol> {
         if (allIcons.isNotEmpty()) {
-            return
+            return emptyList()
         }
-        withContext(
+        return withContext(
             context = Dispatchers.IO,
         ) {
             val cacheDir = File(PathManager.getPluginTempPath(), cacheDirectoryFileName)
@@ -67,6 +67,7 @@ internal class MaterialSymbolsDialogViewModel(
                 )
             }
             filteredMaterialSymbols = allMaterialSymbols
+            allMaterialSymbols
         }
     }
 

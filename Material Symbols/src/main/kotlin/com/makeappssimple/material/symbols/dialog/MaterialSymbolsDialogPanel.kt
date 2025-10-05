@@ -195,7 +195,7 @@ internal class MaterialSymbolsDialogPanel(
             )
             icon?.let {
                 iconPreview.updateIcon(
-                    updatedIcon = RemoteUrlIcon(
+                    updatedIcon = ScaledIcon(
                         icon = icon,
                         size = previewLabelSize,
                     ),

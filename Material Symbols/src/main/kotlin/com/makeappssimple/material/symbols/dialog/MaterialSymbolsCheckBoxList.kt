@@ -6,13 +6,16 @@ import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
+import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
+import javax.swing.Icon
 import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 internal class MaterialSymbolsCheckBoxList(
@@ -26,6 +29,7 @@ internal class MaterialSymbolsCheckBoxList(
     private val progressBar = JProgressBar()
     private val listPanel = JPanel(BorderLayout())
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
+    private val iconsMap: ConcurrentHashMap<MaterialSymbol, Icon> = ConcurrentHashMap()
 
     init {
         layout = BorderLayout()
@@ -39,10 +43,7 @@ internal class MaterialSymbolsCheckBoxList(
         materialSymbolCheckBoxList.visibleRowCount = -1
 
         materialSymbolCheckBoxList.cellRenderer = MyCellRenderer(
-            checkBoxList = materialSymbolCheckBoxList,
-            coroutineScope = coroutineScope,
-            iconsCache = iconsCache,
-            materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
+            iconsMap = iconsMap,
             resourcesProvider = resourcesProvider,
             onCellSelected = { selectedCellIndex ->
                 val updatedSelectedMaterialSymbol: MaterialSymbol? = materialSymbolCheckBoxList.getItemAt(
@@ -68,8 +69,8 @@ internal class MaterialSymbolsCheckBoxList(
         showProgressBar()
         coroutineScope.launch {
             try {
-                materialSymbolsDialogViewModel.fetchAllIcons()
-                materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { materialSymbol ->
+                val allIcons: List<MaterialSymbol> = materialSymbolsDialogViewModel.getAllIcons()
+                allIcons.forEach { materialSymbol ->
                     materialSymbolCheckBoxList.addItem(materialSymbol, materialSymbol.title, false)
                 }
                 hideProgressBar()
@@ -77,13 +78,40 @@ internal class MaterialSymbolsCheckBoxList(
                     border = BorderFactory.createEmptyBorder()
                 }
                 listPanel.add(scrollPane, BorderLayout.CENTER)
-
+                initIconsMap(
+                    allIcons = allIcons,
+                )
                 refreshListPanel()
             } catch (
                 exception: Exception,
             ) {
                 hideProgressBar()
                 onError(exception)
+            }
+        }
+    }
+
+    private suspend fun initIconsMap(
+        allIcons: List<MaterialSymbol>,
+    ) {
+        coroutineScope {
+            allIcons.forEach { materialSymbol ->
+                launch {
+                    val icon = iconsCache.getIcon(
+                        iconUrl = materialSymbolsDialogViewModel.getIconUrl(
+                            materialSymbol = materialSymbol,
+                        ),
+                    )
+                    val scaledIcon: Icon? = icon?.let {
+                        ScaledIcon(
+                            icon = icon,
+                            size = 12,
+                        )
+                    }
+                    scaledIcon?.let {
+                        iconsMap[materialSymbol] = scaledIcon
+                    }
+                }
             }
         }
     }

@@ -6,7 +6,7 @@ import java.awt.Graphics
 import java.awt.image.BufferedImage
 import javax.swing.Icon
 
-internal class RemoteUrlIcon(
+internal class ScaledIcon(
     private val icon: Icon,
     private val size: Int,
 ) : Icon {

@@ -1,29 +1,23 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.CheckBoxList
-import com.makeappssimple.material.symbols.cache.IconsCache
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
-import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
 import javax.swing.BorderFactory
+import javax.swing.Icon
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.ListCellRenderer
 import javax.swing.SwingConstants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 private const val iconSize = 60
 
 internal class MyCellRenderer(
-    private val checkBoxList: CheckBoxList<MaterialSymbol>,
-    private val coroutineScope: CoroutineScope,
-    private val iconsCache: IconsCache,
-    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
+    private val iconsMap: Map<MaterialSymbol, Icon>,
     private val resourcesProvider: ResourcesProvider,
     private val onCellSelected: (Int) -> Unit,
 ) : ListCellRenderer<JCheckBox> {
@@ -66,20 +60,7 @@ internal class MyCellRenderer(
 
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {
-            coroutineScope.launch {
-                val icon = iconsCache.getIcon(
-                    iconUrl = materialSymbolsDialogViewModel.getIconUrl(
-                        materialSymbol = materialSymbol,
-                    ),
-                )
-                icon?.let {
-                    iconLabel.icon = RemoteUrlIcon(
-                        icon = icon,
-                        size = 12,
-                    )
-                    checkBoxList.repaint(checkBoxList.getCellBounds(index, index))
-                }
-            }
+            iconLabel.icon = iconsMap[materialSymbol]
             textLabel.text = "<html>${materialSymbol.title}</html>"
         }
 
