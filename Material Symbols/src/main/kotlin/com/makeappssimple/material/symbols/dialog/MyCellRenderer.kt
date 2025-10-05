@@ -14,8 +14,6 @@ import javax.swing.JList
 import javax.swing.ListCellRenderer
 import javax.swing.SwingConstants
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-
 
 internal class MyCellRenderer(
     private val checkBoxList: CheckBoxList<MaterialSymbol>,
@@ -65,6 +63,8 @@ internal class MyCellRenderer(
 
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {
+            // TODO(Abhi): Fix bug in icon
+            /*
             coroutineScope.launch {
                 val icon = iconsCache.getIcon(
                     iconUrl = materialSymbolsDialogViewModel.getIconUrl(
@@ -74,10 +74,12 @@ internal class MyCellRenderer(
                 icon?.let {
                     iconLabel.icon = RemoteUrlIcon(
                         icon = icon,
+                        size = 12,
                     )
                     checkBoxList.repaint(checkBoxList.getCellBounds(index, index))
                 }
             }
+            */
             textLabel.text = "<html>${materialSymbol.title}</html>"
         }
 

@@ -156,6 +156,7 @@ internal class MaterialSymbolsDialogPanel(
                 iconPreviewLabel.updateIcon(
                     updatedIcon = RemoteUrlIcon(
                         icon = icon,
+                        size = previewIconSize,
                     ),
                 )
                 iconPreviewLabel.repaint()

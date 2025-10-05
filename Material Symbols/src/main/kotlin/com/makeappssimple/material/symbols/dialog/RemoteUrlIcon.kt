@@ -1,16 +1,14 @@
 package com.makeappssimple.material.symbols.dialog
 
+import com.intellij.util.ui.UIUtil
 import java.awt.Component
 import java.awt.Graphics
-import java.awt.Graphics2D
+import java.awt.image.BufferedImage
 import javax.swing.Icon
-
-private const val defaultIconSize = 96
 
 internal class RemoteUrlIcon(
     private val icon: Icon,
-    private val width: Int = defaultIconSize,
-    private val height: Int = defaultIconSize,
+    private val size: Int,
 ) : Icon {
     override fun paintIcon(
         c: Component?,
@@ -18,20 +16,24 @@ internal class RemoteUrlIcon(
         x: Int,
         y: Int,
     ) {
-        val graphics2D = g?.create() as? Graphics2D
-        graphics2D?.translate(x.toDouble(), y.toDouble())
-        val scaleX = width.toDouble() / icon.iconWidth
-        val scaleY = height.toDouble() / icon.iconHeight
-        graphics2D?.scale(scaleX, scaleY)
-        icon.paintIcon(c, graphics2D, 0, 0)
-        graphics2D?.dispose()
+        val bufferedImage: BufferedImage = UIUtil.createImage(
+            c,
+            icon.iconWidth,
+            icon.iconHeight,
+            BufferedImage.TYPE_INT_ARGB,
+        )
+        val imageGraphics = bufferedImage.createGraphics()
+        icon.paintIcon(null, imageGraphics, 0, 0)
+        imageGraphics?.dispose()
+
+        g?.drawImage(bufferedImage, x, y, size, size, c)
     }
 
     override fun getIconWidth(): Int {
-        return width
+        return size
     }
 
     override fun getIconHeight(): Int {
-        return height
+        return size
     }
 }
