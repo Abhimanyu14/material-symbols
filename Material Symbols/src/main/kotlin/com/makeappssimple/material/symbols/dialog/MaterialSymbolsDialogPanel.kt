@@ -50,23 +50,21 @@ internal class MaterialSymbolsDialogPanel(
     }
 
     fun saveSelectedDrawableResources() {
-        for (selectedMaterialSymbol in materialSymbolsDialogViewModel.selectedMaterialSymbols) {
-            try {
-                val drawableResourceFileInfo = materialSymbolsDialogViewModel.getDrawableResourceFileInfo(
-                    materialSymbol = selectedMaterialSymbol,
-                )
-                runWriteCommandAction {
-                    androidDirectoryHelper.saveDrawableFile(
-                        drawableResourceFileInfo = drawableResourceFileInfo,
-                    )
+        materialSymbolsDialogViewModel.getSelectedMaterialSymbolsDrawableResourceFileInfoList()
+            .forEach { drawableResourceFileInfo ->
+                try {
+                    runWriteCommandAction {
+                        androidDirectoryHelper.saveDrawableFile(
+                            drawableResourceFileInfo = drawableResourceFileInfo,
+                        )
+                    }
+                } catch (
+                    exception: Exception,
+                ) {
+                    showErrorDialog("${resourcesProvider.downloadErrorPrefix} ${exception.message}")
+                    closeDialog()
                 }
-            } catch (
-                exception: Exception,
-            ) {
-                showErrorDialog("${resourcesProvider.downloadErrorPrefix} ${exception.message}")
-                closeDialog()
             }
-        }
     }
 
     fun dispose() {

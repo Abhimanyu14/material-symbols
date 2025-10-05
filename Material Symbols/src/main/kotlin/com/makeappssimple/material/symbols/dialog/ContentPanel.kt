@@ -60,14 +60,14 @@ internal class ContentPanel(
 
     fun initListeners() {
         materialSymbolCheckBoxList.setCheckBoxListListener { index, isChecked ->
-            materialSymbolCheckBoxList.getItemAt(index)?.let {
+            materialSymbolCheckBoxList.getItemAt(index)?.let { materialSymbol ->
                 if (isChecked) {
-                    materialSymbolsDialogViewModel.selectedMaterialSymbols.add(
-                        element = it,
+                    materialSymbolsDialogViewModel.addToSelectedMaterialSymbols(
+                        materialSymbol = materialSymbol,
                     )
                 } else {
-                    materialSymbolsDialogViewModel.selectedMaterialSymbols.remove(
-                        element = it,
+                    materialSymbolsDialogViewModel.removeFromSelectedMaterialSymbols(
+                        materialSymbol = materialSymbol,
                     )
                 }
             }
@@ -96,55 +96,8 @@ internal class ContentPanel(
         )
     }
 
-    private fun filterMaterialSymbols() {
-        val selectedMaterialSymbolsSet = materialSymbolsDialogViewModel.selectedMaterialSymbols.toSet()
-        val filteredMaterialSymbols = if (searchTextField.text.isBlank()) {
-            materialSymbolsDialogViewModel.allMaterialSymbols
-        } else {
-            materialSymbolsDialogViewModel.allMaterialSymbols.filter { materialSymbol ->
-                materialSymbol.title.contains(
-                    other = searchTextField.text,
-                    ignoreCase = true,
-                )
-            }
-        }
-        materialSymbolCheckBoxList.clear()
-        filteredMaterialSymbols.forEach { filteredMaterialSymbol ->
-            materialSymbolCheckBoxList.addItem(
-                filteredMaterialSymbol,
-                filteredMaterialSymbol.title,
-                selectedMaterialSymbolsSet.contains(
-                    element = filteredMaterialSymbol,
-                ),
-            )
-        }
-    }
-
-    fun addToListPanelCenter(
-        component: Component,
-    ) {
-        listPanel.add(component, BorderLayout.CENTER)
-    }
-
     fun repaintMaterialSymbolCheckBoxList() {
         materialSymbolCheckBoxList.repaint()
-    }
-
-    // region progressbar
-    fun showProgressBar() {
-        addToListPanelCenter(
-            component = progressBar,
-        )
-    }
-
-    fun hideProgressBar() {
-        listPanel.remove(progressBar)
-    }
-    // endregion
-
-    fun refreshListPanel() {
-        listPanel.revalidate()
-        listPanel.repaint()
     }
 
     fun loadAllIcons(
@@ -153,8 +106,8 @@ internal class ContentPanel(
         showProgressBar()
         coroutineScope.launch {
             try {
-                materialSymbolsDialogViewModel.getAllIcons()
-                materialSymbolsDialogViewModel.allMaterialSymbols.forEach { materialSymbol ->
+                materialSymbolsDialogViewModel.fetchAllIcons()
+                materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { materialSymbol ->
                     materialSymbolCheckBoxList.addItem(materialSymbol, materialSymbol.title, false)
                 }
                 val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
@@ -173,4 +126,44 @@ internal class ContentPanel(
             }
         }
     }
+
+    private fun filterMaterialSymbols() {
+        val selectedMaterialSymbolsSet = materialSymbolsDialogViewModel.selectedMaterialSymbols.toSet()
+        materialSymbolsDialogViewModel.updateFilteredMaterialSymbols(
+            searchText = searchTextField.text,
+        )
+        materialSymbolCheckBoxList.clear()
+        materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { filteredMaterialSymbol ->
+            materialSymbolCheckBoxList.addItem(
+                filteredMaterialSymbol,
+                filteredMaterialSymbol.title,
+                selectedMaterialSymbolsSet.contains(
+                    element = filteredMaterialSymbol,
+                ),
+            )
+        }
+    }
+
+    private fun addToListPanelCenter(
+        component: Component,
+    ) {
+        listPanel.add(component, BorderLayout.CENTER)
+    }
+
+    private fun refreshListPanel() {
+        listPanel.revalidate()
+        listPanel.repaint()
+    }
+
+    // region progressbar
+    private fun showProgressBar() {
+        addToListPanelCenter(
+            component = progressBar,
+        )
+    }
+
+    private fun hideProgressBar() {
+        listPanel.remove(progressBar)
+    }
+    // endregion
 }
