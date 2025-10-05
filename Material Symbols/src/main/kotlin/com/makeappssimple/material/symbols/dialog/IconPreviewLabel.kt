@@ -8,7 +8,12 @@ internal const val previewIconSize = 96
 
 internal class IconPreviewLabel() : JLabel() {
     init {
+        minimumSize = Dimension(previewIconSize, previewIconSize)
+        preferredSize = Dimension(previewIconSize, previewIconSize)
         size = Dimension(previewIconSize, previewIconSize)
+        alignmentX = CENTER_ALIGNMENT
+        horizontalAlignment = CENTER
+        verticalAlignment = CENTER
     }
 
     fun updateIcon(

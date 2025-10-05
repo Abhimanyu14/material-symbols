@@ -5,7 +5,7 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.Icon
 
-private const val defaultIconSize = 60
+private const val defaultIconSize = 96
 
 internal class RemoteUrlIcon(
     private val icon: Icon,
@@ -19,7 +19,7 @@ internal class RemoteUrlIcon(
         y: Int,
     ) {
         val graphics2D = g?.create() as? Graphics2D
-        graphics2D?.translate(x, y)
+        graphics2D?.translate(x.toDouble(), y.toDouble())
         val scaleX = width.toDouble() / icon.iconWidth
         val scaleY = height.toDouble() / icon.iconHeight
         graphics2D?.scale(scaleX, scaleY)
