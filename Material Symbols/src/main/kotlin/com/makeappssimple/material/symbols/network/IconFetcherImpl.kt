@@ -1,5 +1,8 @@
 package com.makeappssimple.material.symbols.network
 
+import java.io.File
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 import okhttp3.Cache
 import okhttp3.CacheControl
 import okhttp3.Call
@@ -7,9 +10,6 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.io.File
-import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 private object IconFetcherImplConstants {
     const val FIVE_MB_IN_BYTES = 5 * 1024 * 1024.toLong()

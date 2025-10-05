@@ -5,18 +5,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
+import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import javax.swing.JComponent
-
-private const val dialogTitle = "Material Symbols"
 
 public class MaterialSymbolsDialog(
     private val project: Project,
 ) : DialogWrapper(project) {
     private var materialSymbolsDialogPanel: MaterialSymbolsDialogPanel? = null
+    private val resourcesProvider: ResourcesProvider = ResourcesProvider()
 
     init {
         init()
-        initDialogUI()
     }
 
     override fun createCenterPanel(): JComponent {
@@ -30,6 +29,7 @@ public class MaterialSymbolsDialog(
         )
         val dialogPanel = MaterialSymbolsDialogPanel(
             androidDirectoryHelper = androidDirectoryHelper,
+            resourcesProvider = resourcesProvider,
             closeDialog = {
                 close(CLOSE_EXIT_CODE)
             },
@@ -48,6 +48,7 @@ public class MaterialSymbolsDialog(
             },
         )
         materialSymbolsDialogPanel = dialogPanel
+        initDialogUI()
         return dialogPanel
     }
 
@@ -62,13 +63,13 @@ public class MaterialSymbolsDialog(
     }
 
     private fun initDialogUI() {
-        title = dialogTitle
+        title = resourcesProvider.dialogTitle
         isOKActionEnabled = false
     }
 
     private fun showErrorDialog(
         errorMessage: String,
     ) {
-        Messages.showErrorDialog(project, errorMessage, "Error")
+        Messages.showErrorDialog(project, errorMessage, resourcesProvider.errorErrorTitle)
     }
 }

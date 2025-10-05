@@ -1,6 +1,7 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
+import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.Dimension
 import javax.swing.BoxLayout
@@ -18,6 +19,7 @@ private const val minimumWidth = 700
 
 internal class MaterialSymbolsDialogPanel(
     private val androidDirectoryHelper: AndroidDirectoryHelper,
+    private val resourcesProvider: ResourcesProvider,
     private val closeDialog: () -> Unit,
     private val runWriteCommandAction: (commandAction: () -> Unit) -> Unit,
     private val showErrorDialog: (errorMessage: String) -> Unit,
@@ -61,7 +63,7 @@ internal class MaterialSymbolsDialogPanel(
             } catch (
                 exception: Exception,
             ) {
-                showErrorDialog("Failed to download the icons: ${exception.message}")
+                showErrorDialog("${resourcesProvider.downloadErrorPrefix} ${exception.message}")
                 closeDialog()
             }
         }
@@ -83,7 +85,7 @@ internal class MaterialSymbolsDialogPanel(
     private fun fetchData() {
         contentPanel.loadAllIcons(
             onError = { exception ->
-                showErrorDialog("Failed to load icons: ${exception.message}")
+                showErrorDialog("${resourcesProvider.loadErrorPrefix} ${exception.message}")
                 closeDialog()
             },
         )
@@ -96,6 +98,7 @@ internal class MaterialSymbolsDialogPanel(
             initialSize = materialSymbolsDialogViewModel.selectedSize,
             initialStyle = materialSymbolsDialogViewModel.selectedStyle,
             initialWeight = materialSymbolsDialogViewModel.selectedWeight,
+            resourcesProvider = resourcesProvider,
             onFilledValueChange = {
                 materialSymbolsDialogViewModel.isFilled = it
                 contentPanel.repaintMaterialSymbolCheckBoxList()
@@ -130,6 +133,7 @@ internal class MaterialSymbolsDialogPanel(
             coroutineScope = coroutineScope,
             iconsCache = iconsCache,
             materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
+            resourcesProvider = resourcesProvider,
             updateOkButtonEnabled = {
                 updateOkButtonEnabled(materialSymbolsDialogViewModel.selectedMaterialSymbols.isNotEmpty())
             },

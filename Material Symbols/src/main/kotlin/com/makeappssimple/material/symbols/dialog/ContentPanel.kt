@@ -3,6 +3,7 @@ package com.makeappssimple.material.symbols.dialog
 import com.intellij.ui.CheckBoxList
 import com.intellij.ui.SearchTextField
 import com.makeappssimple.material.symbols.model.MaterialSymbol
+import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
 import java.awt.Component
@@ -19,8 +20,9 @@ import kotlinx.coroutines.launch
 
 internal class ContentPanel(
     private val coroutineScope: CoroutineScope,
-    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
     private val iconsCache: IconsCache,
+    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
+    private val resourcesProvider: ResourcesProvider,
     private val updateOkButtonEnabled: () -> Unit,
     private val onPreviewMaterialSymbolUpdated: (String) -> Unit,
 ) : JPanel() {
@@ -40,8 +42,9 @@ internal class ContentPanel(
         materialSymbolCheckBoxList.cellRenderer = MyCellRenderer(
             checkBoxList = materialSymbolCheckBoxList,
             coroutineScope = coroutineScope,
-            materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
             iconsCache = iconsCache,
+            materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
+            resourcesProvider = resourcesProvider,
             onCellSelected = { selectedCellIndex ->
                 val updatedSelectedMaterialSymbol: String = materialSymbolCheckBoxList.getItemAt(
                     selectedCellIndex

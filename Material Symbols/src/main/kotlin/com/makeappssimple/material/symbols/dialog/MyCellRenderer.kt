@@ -2,6 +2,7 @@ package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.CheckBoxList
 import com.makeappssimple.material.symbols.model.MaterialSymbol
+import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
 import java.awt.Component
@@ -15,11 +16,13 @@ import javax.swing.SwingConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+
 internal class MyCellRenderer(
     private val checkBoxList: CheckBoxList<MaterialSymbol>,
     private val coroutineScope: CoroutineScope,
-    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
     private val iconsCache: IconsCache,
+    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
+    private val resourcesProvider: ResourcesProvider,
     private val onCellSelected: (Int) -> Unit,
 ) : ListCellRenderer<JCheckBox> {
     private val iconLabel = JLabel()
@@ -46,7 +49,7 @@ internal class MyCellRenderer(
     ): Component {
         if (value == null) {
             // Should not happen with CheckBoxList, but good practice
-            return JLabel("Error")
+            return JLabel(resourcesProvider.cellError)
         }
 
         // Use the provided JCheckBox as the root component.
