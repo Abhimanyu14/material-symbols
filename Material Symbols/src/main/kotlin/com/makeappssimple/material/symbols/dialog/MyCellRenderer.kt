@@ -22,17 +22,15 @@ internal class MyCellRenderer(
     private val onCellSelected: (Int) -> Unit,
 ) : ListCellRenderer<JCheckBox> {
     private val iconLabel = JLabel()
-    private val textLabel = JLabel()
 
     init {
         iconLabel.verticalAlignment = SwingConstants.CENTER
         iconLabel.horizontalAlignment = SwingConstants.CENTER
         val iconDimension = Dimension(iconSize, iconSize)
         iconLabel.preferredSize = iconDimension
-
-        textLabel.verticalAlignment = SwingConstants.CENTER
-        textLabel.horizontalAlignment = SwingConstants.LEFT
-        textLabel.border = BorderFactory.createEmptyBorder(4, 16, 4, 16)
+        iconLabel.minimumSize = iconDimension
+        iconLabel.size = iconDimension
+        iconLabel.maximumSize = iconDimension
     }
 
     override fun getListCellRendererComponent(
@@ -49,6 +47,8 @@ internal class MyCellRenderer(
 
         // Use the provided JCheckBox as the root component.
         // JCheckBox is a container, so we can add components to it.
+        value.isOpaque = true
+        value.iconTextGap = 28
         value.layout = BorderLayout()
         value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
 
@@ -61,23 +61,16 @@ internal class MyCellRenderer(
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {
             iconLabel.icon = iconsMap[materialSymbol]
-            textLabel.text = "<html>${materialSymbol.title}</html>"
         }
 
         // Apply selection colors
         if (isSelected) {
-            value.background = list.selectionBackground
-            textLabel.foreground = list.selectionForeground
             onCellSelected(index)
+            value.background = list.selectionBackground
         } else {
             value.background = list.background
-            textLabel.foreground = list.foreground
         }
         iconLabel.background = value.background
-        textLabel.background = value.background
-
-        value.isOpaque = true
-        value.iconTextGap = 28
         return value
     }
 }
