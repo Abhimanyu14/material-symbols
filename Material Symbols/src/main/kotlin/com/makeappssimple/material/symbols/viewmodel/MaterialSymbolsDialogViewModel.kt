@@ -11,7 +11,7 @@ import com.makeappssimple.material.symbols.network.IconDataSource
 import com.makeappssimple.material.symbols.network.IconDataSourceImpl
 import java.io.BufferedInputStream
 import java.io.File
-import java.net.URL
+import java.net.URI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -219,9 +219,7 @@ internal class MaterialSymbolsDialogViewModel(
         fileUrl: String,
     ): String {
         return BufferedInputStream(
-            URL(
-                fileUrl,
-            ).openStream(),
+            URI.create(fileUrl).toURL().openStream(),
         ).use {
             it
                 .readBytes()
