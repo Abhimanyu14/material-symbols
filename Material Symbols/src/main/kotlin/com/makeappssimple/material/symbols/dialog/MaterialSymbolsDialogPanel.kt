@@ -6,7 +6,6 @@ import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.Dimension
 import javax.swing.BoxLayout
-import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
+import org.jetbrains.android.facet.AndroidFacet
 
 private const val minimumHeight = 600
 private const val minimumWidth = 700
@@ -38,6 +38,7 @@ internal class MaterialSymbolsDialogPanel(
         coroutineScope = coroutineScope,
     )
     private var currentPreviewMaterialSymbol: MaterialSymbol? = null
+    private var currentModule: AndroidFacet? = null
     // endregion
 
     // region UI elements
@@ -56,9 +57,12 @@ internal class MaterialSymbolsDialogPanel(
             .forEach { drawableResourceFileInfo ->
                 try {
                     runWriteCommandAction {
-                        androidDirectoryHelper.saveDrawableFile(
-                            drawableResourceFileInfo = drawableResourceFileInfo,
-                        )
+                        currentModule?.let {
+                            androidDirectoryHelper.saveDrawableFile(
+                                drawableResourceFileInfo = drawableResourceFileInfo,
+                                selectedModule = it,
+                            )
+                        }
                     }
                 } catch (
                     exception: Exception,
@@ -78,6 +82,7 @@ internal class MaterialSymbolsDialogPanel(
         minimumSize = Dimension(minimumWidth, minimumHeight)
 
         add(createOptionsPanel())
+        add(createModulesPanel())
         add(createIconPreview())
         add(createSearchBar())
         add(createMaterialSymbolsCheckBoxList())
@@ -92,7 +97,7 @@ internal class MaterialSymbolsDialogPanel(
         )
     }
 
-    private fun createOptionsPanel(): JPanel {
+    private fun createOptionsPanel(): OptionsPanel {
         return OptionsPanel(
             initialFilledValue = materialSymbolsDialogViewModel.isFilled,
             initialGrade = materialSymbolsDialogViewModel.selectedGrade,
@@ -123,19 +128,32 @@ internal class MaterialSymbolsDialogPanel(
         )
     }
 
+    private fun createModulesPanel(): ModulesPanel {
+        val androidFacets: Array<AndroidFacet> = androidDirectoryHelper.getAndroidFacets().toTypedArray()
+        currentModule = androidFacets.firstOrNull()
+        return ModulesPanel(
+            androidFacets = androidFacets,
+            initialModule = currentModule,
+            resourcesProvider = resourcesProvider,
+            onModuleChange = {
+                currentModule = it
+            },
+        )
+    }
+
     private fun onOptionsUpdated() {
         updatePreviewIcon()
         materialSymbolsCheckBoxList.repaintMaterialSymbolCheckBoxList()
     }
 
-    private fun createIconPreview(): JLabel {
+    private fun createIconPreview(): IconPreview {
         iconPreview = IconPreview()
         currentPreviewMaterialSymbol = materialSymbolsDialogViewModel.filteredMaterialSymbols.firstOrNull()
         updatePreviewIcon()
         return iconPreview
     }
 
-    private fun createSearchBar(): JPanel {
+    private fun createSearchBar(): SearchBar {
         searchBar = SearchBar(
             onSearchTextUpdate = { searchText ->
                 materialSymbolsCheckBoxList.filterMaterialSymbols(
@@ -146,7 +164,7 @@ internal class MaterialSymbolsDialogPanel(
         return searchBar
     }
 
-    private fun createMaterialSymbolsCheckBoxList(): JPanel {
+    private fun createMaterialSymbolsCheckBoxList(): MaterialSymbolsCheckBoxList {
         materialSymbolsCheckBoxList = MaterialSymbolsCheckBoxList(
             coroutineScope = coroutineScope,
             iconsCache = iconsCache,

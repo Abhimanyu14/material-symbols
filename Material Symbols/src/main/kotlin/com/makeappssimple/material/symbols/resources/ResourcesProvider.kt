@@ -19,4 +19,6 @@ internal class ResourcesProvider {
     val sizeLabel: String = resourceBundle.getString("options.size")
     val weightLabel: String = resourceBundle.getString("options.weight")
     val gradeLabel: String = resourceBundle.getString("options.grade")
+
+    val moduleLabel: String = resourceBundle.getString("module")
 }

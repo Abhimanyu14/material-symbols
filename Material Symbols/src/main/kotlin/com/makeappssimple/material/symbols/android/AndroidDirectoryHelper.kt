@@ -1,6 +1,7 @@
 package com.makeappssimple.material.symbols.android
 
 import com.android.tools.idea.projectsystem.SourceProviderManager
+import com.android.tools.idea.projectsystem.SourceProviders
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.extensions.PluginId
@@ -22,19 +23,32 @@ internal class AndroidDirectoryHelper(
     private val project: Project,
     private val showErrorDialog: (errorMessage: String) -> Unit,
 ) {
+    fun getAndroidFacets(): List<AndroidFacet> {
+        val androidFacets: List<AndroidFacet> = project.modules.mapNotNull {
+            AndroidFacet.getInstance(it)
+        }.filter {
+            !it.module.name.endsWith(".main") &&
+                    !it.module.name.endsWith(".unitTest") &&
+                    !it.module.name.endsWith(".androidTest")
+        }
+        return androidFacets
+    }
+
     fun saveDrawableFile(
         drawableResourceFileInfo: DrawableResourceFileInfo,
+        selectedModule: AndroidFacet,
     ) {
-        val drawableDirectory: PsiDirectory = getDrawableDirectory() ?: return
+        val drawableDirectory: PsiDirectory = getDrawableDirectory(
+            selectedModule = selectedModule,
+        ) ?: return
         val drawableFile: PsiFile = drawableDirectory.createFile(drawableResourceFileInfo.name)
         try {
             WriteCommandAction.runWriteCommandAction(project) {
                 val psiDocumentManager = PsiDocumentManager.getInstance(project)
                 val document = psiDocumentManager.getDocument(drawableFile)
-                if (document != null) {
-                    document.setText(drawableResourceFileInfo.content)
-                    psiDocumentManager.commitDocument(document)
-                }
+                    ?: throw IllegalStateException("Unable to get document for file")
+                document.setText(drawableResourceFileInfo.content)
+                psiDocumentManager.commitDocument(document)
                 drawableFile.virtualFile?.let {
                     FileEditorManager.getInstance(project).openFile(it, true)
                 }
@@ -46,13 +60,17 @@ internal class AndroidDirectoryHelper(
         }
     }
 
-    private fun getDrawableDirectory(): PsiDirectory? {
+    private fun getDrawableDirectory(
+        selectedModule: AndroidFacet,
+    ): PsiDirectory? {
         if (!isAndroidPluginInstalled()) {
             showErrorDialog("Android support plugin is not enabled!")
             return null
         }
         return try {
-            val drawableDirectory = getPsiDrawableDirectory()
+            val drawableDirectory = getPsiDrawableDirectory(
+                selectedModule = selectedModule,
+            )
             if (drawableDirectory == null) {
                 showErrorDialog("Could not find or create a drawable directory. Is this an Android project?")
                 null
@@ -75,12 +93,11 @@ internal class AndroidDirectoryHelper(
         )
     }
 
-    private fun getPsiDrawableDirectory(): PsiDirectory? {
-        val androidFacet = project.modules.firstNotNullOfOrNull {
-            AndroidFacet.getInstance(it)
-        } ?: return null
-        val sourceProvidersManager = SourceProviderManager.Companion.getInstance(
-            facet = androidFacet,
+    private fun getPsiDrawableDirectory(
+        selectedModule: AndroidFacet,
+    ): PsiDirectory? {
+        val sourceProvidersManager: SourceProviders = SourceProviderManager.Companion.getInstance(
+            facet = selectedModule,
         )
         val resourceDirectoryFile = sourceProvidersManager.sources.resDirectories.firstOrNull() ?: return null
         val psiManager = PsiManager.getInstance(project)
