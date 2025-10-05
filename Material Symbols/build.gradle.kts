@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.makeappssimple.material.symbols"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
