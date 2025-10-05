@@ -15,6 +15,7 @@ import javax.swing.ListCellRenderer
 import javax.swing.SwingConstants
 
 private const val iconSize = 60
+private const val cellHeight = 60
 
 internal class MyCellRenderer(
     private val iconsMap: Map<MaterialSymbol, Icon>,
@@ -51,6 +52,9 @@ internal class MyCellRenderer(
         value.iconTextGap = 28
         value.layout = BorderLayout()
         value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
+        val originalCellWidth = value.size.width
+        value.size = Dimension(originalCellWidth, cellHeight)
+        value.minimumSize = Dimension(originalCellWidth, cellHeight)
 
         // Clear previous components to avoid duplication on cell reuse
         value.removeAll()
