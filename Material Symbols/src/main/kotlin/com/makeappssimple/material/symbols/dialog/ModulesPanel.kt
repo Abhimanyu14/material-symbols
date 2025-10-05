@@ -9,23 +9,26 @@ import javax.swing.JPanel
 import org.jetbrains.android.facet.AndroidFacet
 
 internal class ModulesPanel(
-    androidFacets: Array<AndroidFacet>,
-    initialModule: AndroidFacet?,
-    resourcesProvider: ResourcesProvider,
-    onModuleChange: (AndroidFacet) -> Unit,
+    private val initialModule: AndroidFacet?,
+    private val androidModules: Array<AndroidFacet>,
+    private val resourcesProvider: ResourcesProvider,
+    private val onModuleChange: (AndroidFacet) -> Unit,
 ) : JPanel() {
-    private val moduleComboBox = ComboBox(androidFacets)
-
     init {
         layout = FlowLayout(FlowLayout.LEFT)
 
-        add(JLabel(resourcesProvider.moduleLabel))
+        initModuleComboBoxUI()
+    }
+
+    private fun initModuleComboBoxUI() {
+        val moduleComboBox = ComboBox(androidModules)
         moduleComboBox.selectedItem = initialModule
         moduleComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onModuleChange(itemEvent.item as AndroidFacet)
             }
         }
+        add(JLabel(resourcesProvider.moduleLabel))
         add(moduleComboBox)
     }
 }

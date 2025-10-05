@@ -58,23 +58,6 @@ internal class MaterialSymbolsCheckBoxList(
         initListeners()
     }
 
-    fun initListeners() {
-        materialSymbolCheckBoxList.setCheckBoxListListener { index, isChecked ->
-            materialSymbolCheckBoxList.getItemAt(index)?.let { materialSymbol ->
-                if (isChecked) {
-                    materialSymbolsDialogViewModel.addToSelectedMaterialSymbols(
-                        materialSymbol = materialSymbol,
-                    )
-                } else {
-                    materialSymbolsDialogViewModel.removeFromSelectedMaterialSymbols(
-                        materialSymbol = materialSymbol,
-                    )
-                }
-            }
-            updateOkButtonEnabled()
-        }
-    }
-
     fun repaintMaterialSymbolCheckBoxList() {
         materialSymbolCheckBoxList.repaint()
     }
@@ -121,6 +104,23 @@ internal class MaterialSymbolsCheckBoxList(
                     element = filteredMaterialSymbol,
                 ),
             )
+        }
+    }
+
+    private fun initListeners() {
+        materialSymbolCheckBoxList.setCheckBoxListListener { index, isChecked ->
+            materialSymbolCheckBoxList.getItemAt(index)?.let { materialSymbol ->
+                if (isChecked) {
+                    materialSymbolsDialogViewModel.addToSelectedMaterialSymbols(
+                        materialSymbol = materialSymbol,
+                    )
+                } else {
+                    materialSymbolsDialogViewModel.removeFromSelectedMaterialSymbols(
+                        materialSymbol = materialSymbol,
+                    )
+                }
+            }
+            updateOkButtonEnabled()
         }
     }
 

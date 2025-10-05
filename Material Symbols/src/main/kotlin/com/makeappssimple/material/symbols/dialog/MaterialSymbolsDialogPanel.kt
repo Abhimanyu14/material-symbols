@@ -133,7 +133,7 @@ internal class MaterialSymbolsDialogPanel(
         val androidFacets: Array<AndroidFacet> = androidDirectoryHelper.getAndroidFacets().toTypedArray()
         currentModule = androidFacets.firstOrNull()
         return ModulesPanel(
-            androidFacets = androidFacets,
+            androidModules = androidFacets,
             initialModule = currentModule,
             resourcesProvider = resourcesProvider,
             onModuleChange = {

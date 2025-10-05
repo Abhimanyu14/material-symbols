@@ -17,6 +17,8 @@ import javax.swing.SwingConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+private const val iconSize = 60
+
 internal class MyCellRenderer(
     private val checkBoxList: CheckBoxList<MaterialSymbol>,
     private val coroutineScope: CoroutineScope,
@@ -31,7 +33,6 @@ internal class MyCellRenderer(
     init {
         iconLabel.verticalAlignment = SwingConstants.CENTER
         iconLabel.horizontalAlignment = SwingConstants.CENTER
-        val iconSize = 60
         val iconDimension = Dimension(iconSize, iconSize)
         iconLabel.preferredSize = iconDimension
 
@@ -76,7 +77,7 @@ internal class MyCellRenderer(
                         icon = icon,
                         size = 12,
                     )
-                    // checkBoxList.repaint(checkBoxList.getCellBounds(index, index))
+                    checkBoxList.repaint(checkBoxList.getCellBounds(index, index))
                 }
             }
             textLabel.text = "<html>${materialSymbol.title}</html>"

@@ -13,81 +13,82 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 
 internal class OptionsPanel(
-    initialFilledValue: Boolean,
-    initialGrade: MaterialSymbolsGrade,
-    initialSize: MaterialSymbolsSize,
-    initialStyle: MaterialSymbolsStyle,
-    initialWeight: MaterialSymbolsWeight,
-    resourcesProvider: ResourcesProvider,
-    onFilledValueChange: (Boolean) -> Unit,
-    onGradeChange: (MaterialSymbolsGrade) -> Unit,
-    onSizeChange: (MaterialSymbolsSize) -> Unit,
-    onStyleChange: (MaterialSymbolsStyle) -> Unit,
-    onWeightChange: (MaterialSymbolsWeight) -> Unit,
+    private val initialFilledValue: Boolean,
+    private val initialGrade: MaterialSymbolsGrade,
+    private val initialSize: MaterialSymbolsSize,
+    private val initialStyle: MaterialSymbolsStyle,
+    private val initialWeight: MaterialSymbolsWeight,
+    private val resourcesProvider: ResourcesProvider,
+    private val onFilledValueChange: (Boolean) -> Unit,
+    private val onGradeChange: (MaterialSymbolsGrade) -> Unit,
+    private val onSizeChange: (MaterialSymbolsSize) -> Unit,
+    private val onStyleChange: (MaterialSymbolsStyle) -> Unit,
+    private val onWeightChange: (MaterialSymbolsWeight) -> Unit,
 ) : JPanel() {
-    private val isFilledCheckBox = JCheckBox(resourcesProvider.filledLabel)
-    private val gradeComboBox = ComboBox(MaterialSymbolsGrade.values())
-    private val styleComboBox = ComboBox(MaterialSymbolsStyle.values())
-    private val weightComboBox = ComboBox(MaterialSymbolsWeight.values())
-    private val sizeComboBox = ComboBox(MaterialSymbolsSize.values())
-
     init {
         layout = FlowLayout(FlowLayout.LEFT)
 
-        // region filled
+        initFilledCheckBoxUI()
+        initStyleComboBoxUI()
+        initSizeComboBoxUI()
+        initWeightComboBoxUI()
+        initGradeComboBoxUI()
+    }
+
+    private fun initFilledCheckBoxUI() {
+        val isFilledCheckBox = JCheckBox(resourcesProvider.filledLabel)
         isFilledCheckBox.isSelected = initialFilledValue
         isFilledCheckBox.addActionListener { actionEvent ->
             onFilledValueChange((actionEvent.source as JCheckBox).isSelected)
         }
         add(isFilledCheckBox)
-        // endregion
+    }
 
-        // region style
-        add(JLabel(resourcesProvider.styleLabel))
-
+    private fun initStyleComboBoxUI() {
+        val styleComboBox = ComboBox(MaterialSymbolsStyle.values())
         styleComboBox.selectedItem = initialStyle
         styleComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onStyleChange(itemEvent.item as MaterialSymbolsStyle)
             }
         }
+        add(JLabel(resourcesProvider.styleLabel))
         add(styleComboBox)
-        // endregion
+    }
 
-        // region size
-        add(JLabel(resourcesProvider.sizeLabel))
-
+    private fun initSizeComboBoxUI() {
+        val sizeComboBox = ComboBox(MaterialSymbolsSize.values())
         sizeComboBox.selectedItem = initialSize
         sizeComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onSizeChange(itemEvent.item as MaterialSymbolsSize)
             }
         }
+        add(JLabel(resourcesProvider.sizeLabel))
         add(sizeComboBox)
-        // endregion
+    }
 
-        // region weight
-        add(JLabel(resourcesProvider.weightLabel))
-
+    private fun initWeightComboBoxUI() {
+        val weightComboBox = ComboBox(MaterialSymbolsWeight.values())
         weightComboBox.selectedItem = initialWeight
         weightComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onWeightChange(itemEvent.item as MaterialSymbolsWeight)
             }
         }
+        add(JLabel(resourcesProvider.weightLabel))
         add(weightComboBox)
-        // endregion
+    }
 
-        // region grade
-        add(JLabel(resourcesProvider.gradeLabel))
-
+    private fun initGradeComboBoxUI() {
+        val gradeComboBox = ComboBox(MaterialSymbolsGrade.values())
         gradeComboBox.selectedItem = initialGrade
         gradeComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onGradeChange(itemEvent.item as MaterialSymbolsGrade)
             }
         }
+        add(JLabel(resourcesProvider.gradeLabel))
         add(gradeComboBox)
-        // endregion
     }
 }
