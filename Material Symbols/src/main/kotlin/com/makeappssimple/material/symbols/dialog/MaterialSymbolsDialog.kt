@@ -19,6 +19,26 @@ public class MaterialSymbolsDialog(
     }
 
     override fun createCenterPanel(): JComponent {
+        initDialogUI()
+        return createMaterialSymbolsDialogPanel()
+    }
+
+    override fun doOKAction() {
+        super.doOKAction()
+        materialSymbolsDialogPanel?.saveSelectedDrawableResources()
+    }
+
+    override fun dispose() {
+        super.dispose()
+        materialSymbolsDialogPanel?.dispose()
+    }
+
+    private fun initDialogUI() {
+        title = resourcesProvider.dialogTitle
+        isOKActionEnabled = false
+    }
+
+    private fun createMaterialSymbolsDialogPanel(): MaterialSymbolsDialogPanel {
         val androidDirectoryHelper = AndroidDirectoryHelper(
             project = project,
             showErrorDialog = {
@@ -48,23 +68,7 @@ public class MaterialSymbolsDialog(
             },
         )
         materialSymbolsDialogPanel = dialogPanel
-        initDialogUI()
         return dialogPanel
-    }
-
-    override fun doOKAction() {
-        super.doOKAction()
-        materialSymbolsDialogPanel?.saveSelectedDrawableResources()
-    }
-
-    override fun dispose() {
-        super.dispose()
-        materialSymbolsDialogPanel?.dispose()
-    }
-
-    private fun initDialogUI() {
-        title = resourcesProvider.dialogTitle
-        isOKActionEnabled = false
     }
 
     private fun showErrorDialog(
