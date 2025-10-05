@@ -24,7 +24,7 @@ internal class ContentPanel(
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
     private val resourcesProvider: ResourcesProvider,
     private val updateOkButtonEnabled: () -> Unit,
-    private val onPreviewMaterialSymbolUpdated: (String) -> Unit,
+    private val onPreviewMaterialSymbolUpdated: (MaterialSymbol) -> Unit,
 ) : JPanel() {
     private val progressBar = JProgressBar()
     private val searchTextField = SearchTextField()
@@ -46,10 +46,12 @@ internal class ContentPanel(
             materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
             resourcesProvider = resourcesProvider,
             onCellSelected = { selectedCellIndex ->
-                val updatedSelectedMaterialSymbol: String = materialSymbolCheckBoxList.getItemAt(
+                val updatedSelectedMaterialSymbol: MaterialSymbol? = materialSymbolCheckBoxList.getItemAt(
                     selectedCellIndex
-                )?.name.orEmpty()
-                onPreviewMaterialSymbolUpdated(updatedSelectedMaterialSymbol)
+                )
+                updatedSelectedMaterialSymbol?.let {
+                    onPreviewMaterialSymbolUpdated(updatedSelectedMaterialSymbol)
+                }
             },
         )
         initListeners()
