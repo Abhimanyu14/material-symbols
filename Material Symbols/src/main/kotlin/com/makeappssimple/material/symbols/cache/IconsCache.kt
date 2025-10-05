@@ -1,4 +1,4 @@
-package com.makeappssimple.material.symbols.dialog
+package com.makeappssimple.material.symbols.cache
 
 import com.intellij.openapi.util.IconLoader
 import java.net.URI

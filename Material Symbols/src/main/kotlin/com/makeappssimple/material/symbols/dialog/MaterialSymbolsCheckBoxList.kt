@@ -1,6 +1,7 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.CheckBoxList
+import com.makeappssimple.material.symbols.cache.IconsCache
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
