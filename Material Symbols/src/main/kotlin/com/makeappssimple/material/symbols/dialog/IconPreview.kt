@@ -1,6 +1,5 @@
 package com.makeappssimple.material.symbols.dialog
 
-import java.awt.Dimension
 import javax.swing.Icon
 import javax.swing.JLabel
 
@@ -8,9 +7,6 @@ internal const val previewLabelSize = 96
 
 internal class IconPreview() : JLabel() {
     init {
-        minimumSize = Dimension(previewLabelSize, previewLabelSize)
-        size = Dimension(previewLabelSize, previewLabelSize)
-        preferredSize = Dimension(previewLabelSize, previewLabelSize)
         alignmentX = CENTER_ALIGNMENT
         horizontalAlignment = CENTER
         verticalAlignment = CENTER
@@ -20,5 +16,6 @@ internal class IconPreview() : JLabel() {
         updatedIcon: Icon,
     ) {
         icon = updatedIcon
+        repaint()
     }
 }

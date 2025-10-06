@@ -97,19 +97,13 @@ internal class MaterialSymbolsCheckBoxList(
         coroutineScope {
             allIcons.forEach { materialSymbol ->
                 launch {
-                    val icon = iconsCache.getIcon(
+                    val icon = iconsCache.getScaledIcon(
                         iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                             materialSymbol = materialSymbol,
                         ),
                     )
-                    val scaledIcon: Icon? = icon?.let {
-                        ScaledIcon(
-                            icon = icon,
-                            size = 12,
-                        )
-                    }
-                    scaledIcon?.let {
-                        iconsMap[materialSymbol] = scaledIcon
+                    icon?.let {
+                        iconsMap[materialSymbol] = icon
                     }
                 }
             }

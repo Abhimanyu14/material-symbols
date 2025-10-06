@@ -190,17 +190,14 @@ internal class MaterialSymbolsDialogPanel(
             val iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                 materialSymbol = materialSymbol,
             )
-            val icon = iconsCache.getIcon(
+            val icon = iconsCache.getScaledIcon(
                 iconUrl = iconUrl,
+                scale = 4,
             )
             icon?.let {
                 iconPreview.updateIcon(
-                    updatedIcon = ScaledIcon(
-                        icon = icon,
-                        size = previewLabelSize,
-                    ),
+                    updatedIcon = icon,
                 )
-                iconPreview.repaint()
             }
         }
     }

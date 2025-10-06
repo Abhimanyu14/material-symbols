@@ -27,11 +27,6 @@ internal class MyCellRenderer(
     init {
         iconLabel.verticalAlignment = SwingConstants.CENTER
         iconLabel.horizontalAlignment = SwingConstants.CENTER
-        val iconDimension = Dimension(iconSize, iconSize)
-        iconLabel.preferredSize = iconDimension
-        iconLabel.minimumSize = iconDimension
-        iconLabel.size = iconDimension
-        iconLabel.maximumSize = iconDimension
     }
 
     override fun getListCellRendererComponent(
@@ -46,18 +41,25 @@ internal class MyCellRenderer(
             return JLabel(resourcesProvider.cellError)
         }
 
+        // Clear previous components to avoid duplication on cell reuse
+        value.removeAll()
+
         // Use the provided JCheckBox as the root component.
         // JCheckBox is a container, so we can add components to it.
         value.isOpaque = true
         value.iconTextGap = 28
+
         value.layout = BorderLayout()
-        value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
+        value.border = BorderFactory.createEmptyBorder(4, 0, 4, 16)
         val originalCellWidth = value.size.width
         value.size = Dimension(originalCellWidth, cellHeight)
         value.minimumSize = Dimension(originalCellWidth, cellHeight)
 
-        // Clear previous components to avoid duplication on cell reuse
-        value.removeAll()
+        val iconDimension = Dimension(iconSize, iconSize)
+        iconLabel.preferredSize = iconDimension
+        iconLabel.minimumSize = iconDimension
+        iconLabel.size = iconDimension
+        iconLabel.maximumSize = iconDimension
 
         // Add the icon to the checkbox component
         value.add(iconLabel, BorderLayout.WEST)
