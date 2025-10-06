@@ -11,16 +11,26 @@ internal class SearchBar(
     private val onSearchTextUpdate: (String) -> Unit,
 ) : SearchTextField() {
     init {
-        size = Dimension(size.width, searchBarHeight)
-        preferredSize = Dimension(size.width, searchBarHeight)
-        minimumSize = Dimension(size.width, searchBarHeight)
-
         initListeners()
     }
 
+    override fun getMaximumSize(): Dimension? {
+        val size = super.getMaximumSize()
+        return Dimension(size.width, searchBarHeight)
+    }
+
+    override fun getMinimumSize(): Dimension? {
+        val size = super.getMinimumSize()
+        return Dimension(size.width, searchBarHeight)
+    }
 
     override fun getPreferredSize(): Dimension? {
         val size = super.getPreferredSize()
+        return Dimension(size.width, searchBarHeight)
+    }
+
+    override fun getSize(rv: Dimension?): Dimension? {
+        val size = super.getSize()
         return Dimension(size.width, searchBarHeight)
     }
 
