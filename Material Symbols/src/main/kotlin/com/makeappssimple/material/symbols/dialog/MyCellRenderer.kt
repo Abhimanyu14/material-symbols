@@ -49,13 +49,13 @@ internal class MyCellRenderer(
         value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
         iconLabel.border = BorderFactory.createEmptyBorder(0, 24, 0, 4)
 
-        // Add the icon to the checkbox component
-        value.add(iconLabel)
-
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {
             iconLabel.icon = iconsMap[materialSymbol]
         }
+
+        // Add the icon to the checkbox component
+        value.add(iconLabel)
 
         // Apply selection colors
         if (isSelected) {

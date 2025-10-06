@@ -1,7 +1,7 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.CheckBoxList
-import com.makeappssimple.material.symbols.cache.IconsCache
+import com.makeappssimple.material.symbols.cache.SvgDocumentCache
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 
 internal class MaterialSymbolsCheckBoxList(
     private val coroutineScope: CoroutineScope,
-    private val iconsCache: IconsCache,
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel,
     private val resourcesProvider: ResourcesProvider,
+    private val svgDocumentCache: SvgDocumentCache,
     private val updateOkButtonEnabled: () -> Unit,
     private val onPreviewMaterialSymbolUpdated: (MaterialSymbol) -> Unit,
 ) : JPanel() {
@@ -97,13 +97,16 @@ internal class MaterialSymbolsCheckBoxList(
         coroutineScope {
             allIcons.forEach { materialSymbol ->
                 launch {
-                    val icon = iconsCache.getScaledIcon(
+                    val svgDocument = svgDocumentCache.getSvgDocument(
                         iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                             materialSymbol = materialSymbol,
                         ),
                     )
-                    icon?.let {
-                        iconsMap[materialSymbol] = icon
+                    svgDocument?.let {
+                        iconsMap[materialSymbol] = ScaledIcon(
+                            svgDocument = svgDocument,
+                            size = 24,
+                        )
                     }
                 }
             }

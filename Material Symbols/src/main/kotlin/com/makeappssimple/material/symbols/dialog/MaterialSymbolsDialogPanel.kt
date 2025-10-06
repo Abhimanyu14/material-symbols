@@ -1,7 +1,7 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.makeappssimple.material.symbols.android.AndroidDirectoryHelper
-import com.makeappssimple.material.symbols.cache.IconsCache
+import com.makeappssimple.material.symbols.cache.SvgDocumentCache
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
@@ -35,12 +35,12 @@ internal class MaterialSymbolsDialogPanel(
     // endregion
 
     // region data
-    private val iconsCache: IconsCache = IconsCache()
+    private var currentModule: AndroidFacet? = null
+    private var currentPreviewMaterialSymbol: MaterialSymbol? = null
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
         coroutineScope = coroutineScope,
     )
-    private var currentPreviewMaterialSymbol: MaterialSymbol? = null
-    private var currentModule: AndroidFacet? = null
+    private val svgDocumentCache: SvgDocumentCache = SvgDocumentCache()
     // endregion
 
     // region UI elements
@@ -173,7 +173,7 @@ internal class MaterialSymbolsDialogPanel(
     private fun createMaterialSymbolsCheckBoxList(): MaterialSymbolsCheckBoxList {
         materialSymbolsCheckBoxList = MaterialSymbolsCheckBoxList(
             coroutineScope = coroutineScope,
-            iconsCache = iconsCache,
+            svgDocumentCache = svgDocumentCache,
             materialSymbolsDialogViewModel = materialSymbolsDialogViewModel,
             resourcesProvider = resourcesProvider,
             updateOkButtonEnabled = {
@@ -195,13 +195,15 @@ internal class MaterialSymbolsDialogPanel(
             val iconUrl = materialSymbolsDialogViewModel.getIconUrl(
                 materialSymbol = materialSymbol,
             )
-            val icon = iconsCache.getScaledIcon(
+            val svgDocument = svgDocumentCache.getSvgDocument(
                 iconUrl = iconUrl,
-                scale = 4,
             )
-            icon?.let {
+            svgDocument?.let {
                 iconPreview.updateIcon(
-                    updatedIcon = icon,
+                    updatedIcon = ScaledIcon(
+                        svgDocument = svgDocument,
+                        size = 96,
+                    ),
                 )
             }
         }

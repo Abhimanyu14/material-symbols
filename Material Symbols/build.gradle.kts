@@ -24,6 +24,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
+    implementation("com.github.weisj:jsvg:2.0.0")
 
     intellijPlatform {
         androidStudio("2025.1.3.7")
