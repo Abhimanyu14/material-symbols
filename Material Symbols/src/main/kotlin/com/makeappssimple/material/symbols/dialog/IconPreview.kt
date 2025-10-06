@@ -1,6 +1,7 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.JBColor
+import java.awt.Dimension
 import javax.swing.Icon
 import javax.swing.JLabel
 
@@ -9,6 +10,10 @@ internal class IconPreview() : JLabel() {
         alignmentX = CENTER_ALIGNMENT
         horizontalAlignment = CENTER
         verticalAlignment = CENTER
+    }
+
+    override fun getMaximumSize(): Dimension {
+        return Dimension(super.getMaximumSize().width, preferredSize.height)
     }
 
     fun updateIcon(

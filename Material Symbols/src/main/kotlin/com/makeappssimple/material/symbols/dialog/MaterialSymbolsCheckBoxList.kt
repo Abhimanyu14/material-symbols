@@ -6,8 +6,10 @@ import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
 import java.awt.BorderLayout
+import java.awt.Dimension
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
+import javax.swing.BoxLayout
 import javax.swing.Icon
 import javax.swing.JList
 import javax.swing.JPanel
@@ -27,12 +29,11 @@ internal class MaterialSymbolsCheckBoxList(
     private val onPreviewMaterialSymbolUpdated: (MaterialSymbol) -> Unit,
 ) : JPanel() {
     private val progressBar = JProgressBar()
-    private val listPanel = JPanel(BorderLayout())
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
     private val iconsMap: ConcurrentHashMap<MaterialSymbol, Icon> = ConcurrentHashMap()
 
     init {
-        layout = BorderLayout()
+        layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
         progressBar.isIndeterminate = true
         progressBar.isStringPainted = true
@@ -55,7 +56,6 @@ internal class MaterialSymbolsCheckBoxList(
             },
         )
         materialSymbolCheckBoxList.fixedCellHeight = cellHeight
-        add(listPanel, BorderLayout.CENTER)
 
         initListeners()
     }
@@ -78,7 +78,7 @@ internal class MaterialSymbolsCheckBoxList(
                 val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
                     border = BorderFactory.createEmptyBorder()
                 }
-                listPanel.add(scrollPane, BorderLayout.CENTER)
+                add(scrollPane, BorderLayout.CENTER)
                 initIconsMap(
                     allIcons = allIcons,
                 )
@@ -150,17 +150,17 @@ internal class MaterialSymbolsCheckBoxList(
     }
 
     private fun refreshListPanel() {
-        listPanel.revalidate()
-        listPanel.repaint()
+        revalidate()
+        repaint()
     }
 
     // region progressbar
     private fun showProgressBar() {
-        listPanel.add(progressBar, BorderLayout.NORTH)
+        add(progressBar)
     }
 
     private fun hideProgressBar() {
-        listPanel.remove(progressBar)
+        remove(progressBar)
     }
     // endregion
 }

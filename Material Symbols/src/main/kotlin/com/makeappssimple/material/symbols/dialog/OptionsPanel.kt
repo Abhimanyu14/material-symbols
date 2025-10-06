@@ -6,6 +6,7 @@ import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
 import com.makeappssimple.material.symbols.model.MaterialSymbolsStyle
 import com.makeappssimple.material.symbols.model.MaterialSymbolsWeight
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
+import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.event.ItemEvent
 import javax.swing.JCheckBox
@@ -33,6 +34,10 @@ internal class OptionsPanel(
         initSizeComboBoxUI()
         initWeightComboBoxUI()
         initGradeComboBoxUI()
+    }
+
+    override fun getMaximumSize(): Dimension {
+        return Dimension(super.getMaximumSize().width, preferredSize.height)
     }
 
     private fun initFilledCheckBoxUI() {
