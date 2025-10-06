@@ -3,9 +3,7 @@ package com.makeappssimple.material.symbols.dialog
 import com.intellij.ui.CheckBoxList
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
-import java.awt.BorderLayout
 import java.awt.Component
-import java.awt.Dimension
 import javax.swing.BorderFactory
 import javax.swing.Icon
 import javax.swing.JCheckBox
@@ -14,8 +12,7 @@ import javax.swing.JList
 import javax.swing.ListCellRenderer
 import javax.swing.SwingConstants
 
-private const val iconSize = 60
-private const val cellHeight = 60
+internal const val cellHeight = 32
 
 internal class MyCellRenderer(
     private val iconsMap: Map<MaterialSymbol, Icon>,
@@ -49,16 +46,11 @@ internal class MyCellRenderer(
         value.isOpaque = true
         value.iconTextGap = 36
 
-        value.layout = BorderLayout()
         value.border = BorderFactory.createEmptyBorder(0, 0, 0, 16)
-        val originalCellWidth = value.size.width
-        value.size = Dimension(originalCellWidth, cellHeight)
-        value.minimumSize = Dimension(originalCellWidth, cellHeight)
-
         iconLabel.border = BorderFactory.createEmptyBorder(0, 24, 0, 4)
 
         // Add the icon to the checkbox component
-        value.add(iconLabel, BorderLayout.WEST)
+        value.add(iconLabel)
 
         val materialSymbol = (list as CheckBoxList<MaterialSymbol>).getItemAt(index)
         if (materialSymbol != null) {

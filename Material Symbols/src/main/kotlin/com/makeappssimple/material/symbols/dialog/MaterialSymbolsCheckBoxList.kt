@@ -54,6 +54,7 @@ internal class MaterialSymbolsCheckBoxList(
                 }
             },
         )
+        materialSymbolCheckBoxList.fixedCellHeight = cellHeight
         add(listPanel, BorderLayout.CENTER)
 
         initListeners()
