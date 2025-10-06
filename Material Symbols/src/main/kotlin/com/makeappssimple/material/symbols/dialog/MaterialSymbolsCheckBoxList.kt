@@ -114,19 +114,21 @@ internal class MaterialSymbolsCheckBoxList(
     fun filterMaterialSymbols(
         searchText: String,
     ) {
-        val selectedMaterialSymbolsSet = materialSymbolsDialogViewModel.selectedMaterialSymbols.toSet()
-        materialSymbolsDialogViewModel.updateFilteredMaterialSymbols(
-            searchText = searchText,
-        )
-        materialSymbolCheckBoxList.clear()
-        materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { filteredMaterialSymbol ->
-            materialSymbolCheckBoxList.addItem(
-                filteredMaterialSymbol,
-                filteredMaterialSymbol.title,
-                selectedMaterialSymbolsSet.contains(
-                    element = filteredMaterialSymbol,
-                ),
+        coroutineScope.launch {
+            val selectedMaterialSymbolsSet = materialSymbolsDialogViewModel.selectedMaterialSymbols.toSet()
+            materialSymbolsDialogViewModel.updateFilteredMaterialSymbols(
+                searchText = searchText,
             )
+            materialSymbolCheckBoxList.clear()
+            materialSymbolsDialogViewModel.filteredMaterialSymbols.forEach { filteredMaterialSymbol ->
+                materialSymbolCheckBoxList.addItem(
+                    filteredMaterialSymbol,
+                    filteredMaterialSymbol.title,
+                    selectedMaterialSymbolsSet.contains(
+                        element = filteredMaterialSymbol,
+                    ),
+                )
+            }
         }
     }
 

@@ -71,17 +71,21 @@ internal class MaterialSymbolsDialogViewModel(
         }
     }
 
-    fun updateFilteredMaterialSymbols(
+    suspend fun updateFilteredMaterialSymbols(
         searchText: String,
     ) {
-        filteredMaterialSymbols = if (searchText.isBlank()) {
-            allMaterialSymbols
-        } else {
-            allMaterialSymbols.filter { materialSymbol ->
-                materialSymbol.title.contains(
-                    other = searchText,
-                    ignoreCase = true,
-                )
+        withContext(
+            context = Dispatchers.Default,
+        ) {
+            filteredMaterialSymbols = if (searchText.isBlank()) {
+                allMaterialSymbols
+            } else {
+                allMaterialSymbols.filter { materialSymbol ->
+                    materialSymbol.title.contains(
+                        other = searchText,
+                        ignoreCase = true,
+                    )
+                }
             }
         }
     }
