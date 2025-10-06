@@ -15,8 +15,6 @@ internal class ModulesPanel(
     private val onModuleChange: (AndroidFacet) -> Unit,
 ) : JPanel() {
     init {
-        layout = FlowLayout(FlowLayout.LEFT)
-
         initModuleComboBoxUI()
     }
 

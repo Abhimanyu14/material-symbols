@@ -1,14 +1,27 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.ui.SearchTextField
+import java.awt.Dimension
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
+
+private const val searchBarHeight = 30
 
 internal class SearchBar(
     private val onSearchTextUpdate: (String) -> Unit,
 ) : SearchTextField() {
     init {
+        size = Dimension(size.width, searchBarHeight)
+        preferredSize = Dimension(size.width, searchBarHeight)
+        minimumSize = Dimension(size.width, searchBarHeight)
+
         initListeners()
+    }
+
+
+    override fun getPreferredSize(): Dimension? {
+        val size = super.getPreferredSize()
+        return Dimension(size.width, searchBarHeight)
     }
 
     private fun initListeners() {
