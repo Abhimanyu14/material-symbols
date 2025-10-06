@@ -5,6 +5,7 @@ import com.makeappssimple.material.symbols.cache.IconsCache
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
+import io.ktor.utils.io.CancellationException
 import java.awt.Dimension
 import javax.swing.BoxLayout
 import javax.swing.JPanel
@@ -65,6 +66,10 @@ internal class MaterialSymbolsDialogPanel(
                             )
                         }
                     }
+                } catch (
+                    cancellationException: CancellationException,
+                ) {
+                    throw cancellationException
                 } catch (
                     exception: Exception,
                 ) {

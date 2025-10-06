@@ -5,8 +5,7 @@ import com.makeappssimple.material.symbols.cache.IconsCache
 import com.makeappssimple.material.symbols.model.MaterialSymbol
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import com.makeappssimple.material.symbols.viewmodel.MaterialSymbolsDialogViewModel
-import java.awt.BorderLayout
-import java.awt.Dimension
+import io.ktor.utils.io.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.BorderFactory
 import javax.swing.BoxLayout
@@ -34,10 +33,6 @@ internal class MaterialSymbolsCheckBoxList(
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-
-        progressBar.isIndeterminate = true
-        progressBar.isStringPainted = true
-        progressBar.string = resourcesProvider.dialogProgress
 
         materialSymbolCheckBoxList.selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
         materialSymbolCheckBoxList.layoutOrientation = JList.HORIZONTAL_WRAP
@@ -78,11 +73,15 @@ internal class MaterialSymbolsCheckBoxList(
                 val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
                     border = BorderFactory.createEmptyBorder()
                 }
-                add(scrollPane, BorderLayout.CENTER)
+                add(scrollPane)
                 initIconsMap(
                     allIcons = allIcons,
                 )
                 refreshListPanel()
+            } catch (
+                cancellationException: CancellationException,
+            ) {
+                throw cancellationException
             } catch (
                 exception: Exception,
             ) {
@@ -156,6 +155,9 @@ internal class MaterialSymbolsCheckBoxList(
 
     // region progressbar
     private fun showProgressBar() {
+        progressBar.isIndeterminate = true
+        progressBar.isStringPainted = true
+        progressBar.string = resourcesProvider.dialogProgress
         add(progressBar)
     }
 
