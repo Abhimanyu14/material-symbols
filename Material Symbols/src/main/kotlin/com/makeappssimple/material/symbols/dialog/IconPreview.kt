@@ -1,9 +1,8 @@
 package com.makeappssimple.material.symbols.dialog
 
+import com.intellij.ui.JBColor
 import javax.swing.Icon
 import javax.swing.JLabel
-
-internal const val previewLabelSize = 96
 
 internal class IconPreview() : JLabel() {
     init {
@@ -16,6 +15,8 @@ internal class IconPreview() : JLabel() {
         updatedIcon: Icon,
     ) {
         icon = updatedIcon
+        isOpaque = true
+        background = JBColor.WHITE
         repaint()
     }
 }
