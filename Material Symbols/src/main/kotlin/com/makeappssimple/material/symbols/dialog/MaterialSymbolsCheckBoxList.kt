@@ -71,6 +71,9 @@ internal class MaterialSymbolsCheckBoxList(
                 allIcons.addAll(
                     elements = materialSymbolsDialogViewModel.getAllIcons(),
                 )
+                allIcons.firstOrNull()?.let { initialPreviewMaterialSymbol ->
+                    onPreviewMaterialSymbolUpdated(initialPreviewMaterialSymbol)
+                }
                 launch(
                     context = coroutineContext + Dispatchers.Swing,
                 ) {
@@ -88,7 +91,7 @@ internal class MaterialSymbolsCheckBoxList(
                     add(scrollPane)
                     refreshListPanel()
                 }
-                refreshIconsMap()
+                refreshCheckBoxListIcons()
             } catch (
                 cancellationException: CancellationException,
             ) {
@@ -102,7 +105,7 @@ internal class MaterialSymbolsCheckBoxList(
         }
     }
 
-    suspend fun refreshIconsMap() {
+    suspend fun refreshCheckBoxListIcons() {
         coroutineScope {
             allIcons.forEach { materialSymbol ->
                 launch {

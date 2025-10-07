@@ -11,9 +11,12 @@ import javax.swing.BoxLayout
 import javax.swing.JPanel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
+import kotlinx.coroutines.withContext
 import org.jetbrains.android.facet.AndroidFacet
 
 private const val minimumHeight = 600
@@ -31,6 +34,7 @@ internal class MaterialSymbolsDialogPanel(
     private val coroutineScope: CoroutineScope = CoroutineScope(
         context = SupervisorJob() + Dispatchers.IO,
     )
+    private var onOptionsUpdatedJob: Job? = null
     // endregion
 
     // region data
@@ -156,7 +160,10 @@ internal class MaterialSymbolsDialogPanel(
 
     private fun onOptionsUpdated() {
         updatePreviewIcon()
-        materialSymbolsCheckBoxList.repaintMaterialSymbolCheckBoxList()
+        onOptionsUpdatedJob?.cancel()
+        onOptionsUpdatedJob = coroutineScope.launch {
+            materialSymbolsCheckBoxList.refreshCheckBoxListIcons()
+        }
     }
 
     private fun createIconPreview(): IconPreview {
@@ -205,13 +212,17 @@ internal class MaterialSymbolsDialogPanel(
             val svgDocument = svgDocumentCache.getSvgDocument(
                 iconUrl = iconUrl,
             )
-            svgDocument?.let {
-                iconPreview.updateIcon(
-                    updatedIcon = ScaledIcon(
-                        svgDocument = svgDocument,
-                        size = iconPreviewSize,
-                    ),
-                )
+            withContext(
+                context = Dispatchers.Swing,
+            ) {
+                svgDocument?.let {
+                    iconPreview.updateIcon(
+                        updatedIcon = ScaledIcon(
+                            svgDocument = svgDocument,
+                            size = iconPreviewSize,
+                        ),
+                    )
+                }
             }
         }
     }
