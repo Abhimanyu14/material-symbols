@@ -13,6 +13,7 @@ import javax.swing.ListCellRenderer
 import javax.swing.SwingConstants
 
 internal const val cellHeight = 32
+internal const val cellIconSize = 24
 
 internal class MyCellRenderer(
     private val iconsMap: Map<MaterialSymbol, Icon>,

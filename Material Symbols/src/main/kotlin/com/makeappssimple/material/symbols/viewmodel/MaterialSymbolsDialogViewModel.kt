@@ -87,15 +87,50 @@ internal class MaterialSymbolsDialogViewModel() {
         }
     }
 
-    fun getIconUrl(
+    suspend fun getIconUrl(
         materialSymbol: MaterialSymbol,
     ): String {
-        val cacheKey = getMaterialSymbolStateCacheKey(
-            materialSymbol = materialSymbol,
-        )
-        iconUrlCache[cacheKey]?.let {
-            return it
+        return withContext(
+            Dispatchers.Default,
+        ) {
+            val cacheKey = getMaterialSymbolStateCacheKey(
+                materialSymbol = materialSymbol,
+            )
+            val iconUrl = iconUrlCache[cacheKey] ?: createIconUrl(
+                materialSymbol = materialSymbol,
+            )
+            iconUrlCache[cacheKey] = iconUrl
+            iconUrl
         }
+    }
+
+    fun getSelectedMaterialSymbolsDrawableResourceFileInfoList(): List<DrawableResourceFileInfo> {
+        return selectedMaterialSymbols.map { materialSymbol ->
+            getDrawableResourceFileInfo(
+                materialSymbol = materialSymbol,
+            )
+        }
+    }
+
+    fun addToSelectedMaterialSymbols(
+        materialSymbol: MaterialSymbol,
+    ) {
+        selectedMaterialSymbols.add(
+            element = materialSymbol,
+        )
+    }
+
+    fun removeFromSelectedMaterialSymbols(
+        materialSymbol: MaterialSymbol,
+    ) {
+        selectedMaterialSymbols.remove(
+            element = materialSymbol,
+        )
+    }
+
+    private fun createIconUrl(
+        materialSymbol: MaterialSymbol,
+    ): String {
         val styleString = "materialsymbols${selectedStyle.value}"
         val options = mutableListOf<String>()
         if (selectedGrade != DEFAULT_GRADE) {
@@ -123,32 +158,7 @@ internal class MaterialSymbolsDialogViewModel() {
         }
         val url =
             "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${selectedSize.value}px.svg"
-        iconUrlCache[cacheKey] = url
         return url
-    }
-
-    fun getSelectedMaterialSymbolsDrawableResourceFileInfoList(): List<DrawableResourceFileInfo> {
-        return selectedMaterialSymbols.map { materialSymbol ->
-            getDrawableResourceFileInfo(
-                materialSymbol = materialSymbol,
-            )
-        }
-    }
-
-    fun addToSelectedMaterialSymbols(
-        materialSymbol: MaterialSymbol,
-    ) {
-        selectedMaterialSymbols.add(
-            element = materialSymbol,
-        )
-    }
-
-    fun removeFromSelectedMaterialSymbols(
-        materialSymbol: MaterialSymbol,
-    ) {
-        selectedMaterialSymbols.remove(
-            element = materialSymbol,
-        )
     }
 
     private fun getMaterialSymbolTitle(

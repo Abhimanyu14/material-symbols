@@ -201,7 +201,7 @@ internal class MaterialSymbolsDialogPanel(
                 iconPreview.updateIcon(
                     updatedIcon = ScaledIcon(
                         svgDocument = svgDocument,
-                        size = 96,
+                        size = iconPreviewSize,
                     ),
                 )
             }

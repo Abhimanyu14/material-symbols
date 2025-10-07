@@ -5,6 +5,8 @@ import java.awt.Dimension
 import javax.swing.Icon
 import javax.swing.JLabel
 
+internal const val iconPreviewSize = 96
+
 internal class IconPreview() : JLabel() {
     init {
         alignmentX = CENTER_ALIGNMENT

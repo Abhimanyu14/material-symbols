@@ -97,15 +97,16 @@ internal class MaterialSymbolsCheckBoxList(
         coroutineScope {
             allIcons.forEach { materialSymbol ->
                 launch {
+                    val iconUrl = materialSymbolsDialogViewModel.getIconUrl(
+                        materialSymbol = materialSymbol,
+                    )
                     val svgDocument = svgDocumentCache.getSvgDocument(
-                        iconUrl = materialSymbolsDialogViewModel.getIconUrl(
-                            materialSymbol = materialSymbol,
-                        ),
+                        iconUrl = iconUrl,
                     )
                     svgDocument?.let {
                         iconsMap[materialSymbol] = ScaledIcon(
                             svgDocument = svgDocument,
-                            size = 24,
+                            size = cellIconSize,
                         )
                     }
                 }
