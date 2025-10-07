@@ -12,7 +12,6 @@ import com.makeappssimple.material.symbols.network.IconDataSourceImpl
 import java.io.BufferedInputStream
 import java.io.File
 import java.net.URI
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -25,9 +24,7 @@ private val DEFAULT_WEIGHT = MaterialSymbolsWeight.W400
 
 private const val cacheDirectoryFileName = "material-symbols-icons"
 
-internal class MaterialSymbolsDialogViewModel(
-    private val coroutineScope: CoroutineScope,
-) {
+internal class MaterialSymbolsDialogViewModel() {
     // region data
     var filteredMaterialSymbols: List<MaterialSymbol> = emptyList()
     val selectedMaterialSymbols: MutableList<MaterialSymbol> = mutableListOf()

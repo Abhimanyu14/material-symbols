@@ -38,7 +38,6 @@ internal class MaterialSymbolsDialogPanel(
     private var currentModule: AndroidFacet? = null
     private var currentPreviewMaterialSymbol: MaterialSymbol? = null
     private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
-        coroutineScope = coroutineScope,
     )
     private val svgDocumentCache: SvgDocumentCache = SvgDocumentCache()
     // endregion
