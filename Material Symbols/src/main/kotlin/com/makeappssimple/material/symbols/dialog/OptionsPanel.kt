@@ -1,6 +1,7 @@
 package com.makeappssimple.material.symbols.dialog
 
 import com.intellij.openapi.ui.ComboBox
+import com.makeappssimple.material.symbols.model.MaterialSymbolOptions
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
 import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
 import com.makeappssimple.material.symbols.model.MaterialSymbolsStyle
@@ -14,11 +15,7 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 
 internal class OptionsPanel(
-    private val initialFilledValue: Boolean,
-    private val initialGrade: MaterialSymbolsGrade,
-    private val initialSize: MaterialSymbolsSize,
-    private val initialStyle: MaterialSymbolsStyle,
-    private val initialWeight: MaterialSymbolsWeight,
+    private val materialSymbolOptions: MaterialSymbolOptions,
     private val resourcesProvider: ResourcesProvider,
     private val onFilledValueChange: (Boolean) -> Unit,
     private val onGradeChange: (MaterialSymbolsGrade) -> Unit,
@@ -42,7 +39,7 @@ internal class OptionsPanel(
 
     private fun initFilledCheckBoxUI() {
         val isFilledCheckBox = JCheckBox(resourcesProvider.filledLabel)
-        isFilledCheckBox.isSelected = initialFilledValue
+        isFilledCheckBox.isSelected = materialSymbolOptions.isFilled
         isFilledCheckBox.addActionListener { actionEvent ->
             onFilledValueChange((actionEvent.source as JCheckBox).isSelected)
         }
@@ -51,7 +48,7 @@ internal class OptionsPanel(
 
     private fun initStyleComboBoxUI() {
         val styleComboBox = ComboBox(MaterialSymbolsStyle.values())
-        styleComboBox.selectedItem = initialStyle
+        styleComboBox.selectedItem = materialSymbolOptions.style
         styleComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onStyleChange(itemEvent.item as MaterialSymbolsStyle)
@@ -63,7 +60,7 @@ internal class OptionsPanel(
 
     private fun initSizeComboBoxUI() {
         val sizeComboBox = ComboBox(MaterialSymbolsSize.values())
-        sizeComboBox.selectedItem = initialSize
+        sizeComboBox.selectedItem = materialSymbolOptions.size
         sizeComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onSizeChange(itemEvent.item as MaterialSymbolsSize)
@@ -75,7 +72,7 @@ internal class OptionsPanel(
 
     private fun initWeightComboBoxUI() {
         val weightComboBox = ComboBox(MaterialSymbolsWeight.values())
-        weightComboBox.selectedItem = initialWeight
+        weightComboBox.selectedItem = materialSymbolOptions.weight
         weightComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onWeightChange(itemEvent.item as MaterialSymbolsWeight)
@@ -87,7 +84,7 @@ internal class OptionsPanel(
 
     private fun initGradeComboBoxUI() {
         val gradeComboBox = ComboBox(MaterialSymbolsGrade.values())
-        gradeComboBox.selectedItem = initialGrade
+        gradeComboBox.selectedItem = materialSymbolOptions.grade
         gradeComboBox.addItemListener { itemEvent ->
             if (itemEvent.stateChange == ItemEvent.SELECTED) {
                 onGradeChange(itemEvent.item as MaterialSymbolsGrade)

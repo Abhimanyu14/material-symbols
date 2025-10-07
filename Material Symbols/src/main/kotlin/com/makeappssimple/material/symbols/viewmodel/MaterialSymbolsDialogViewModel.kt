@@ -35,21 +35,8 @@ internal class MaterialSymbolsDialogViewModel(
         style = DEFAULT_STYLE,
         weight = DEFAULT_WEIGHT,
     )
-
-    val isFilled: Boolean
-        get() = _materialSymbolOptions.isFilled
-
-    val selectedGrade: MaterialSymbolsGrade
-        get() = _materialSymbolOptions.grade
-
-    val selectedSize: MaterialSymbolsSize
-        get() = _materialSymbolOptions.size
-
-    val selectedStyle: MaterialSymbolsStyle
-        get() = _materialSymbolOptions.style
-
-    val selectedWeight: MaterialSymbolsWeight
-        get() = _materialSymbolOptions.weight
+    val materialSymbolOptions: MaterialSymbolOptions
+        get() = _materialSymbolOptions
     // endregion
 
     suspend fun getAllIcons(): List<MaterialSymbol> {
@@ -85,7 +72,7 @@ internal class MaterialSymbolsDialogViewModel(
     ): String {
         return materialSymbolsRepository.getIconUrl(
             materialSymbol = materialSymbol,
-            materialSymbolOptions = _materialSymbolOptions,
+            materialSymbolOptions = materialSymbolOptions,
         )
     }
 
@@ -93,7 +80,7 @@ internal class MaterialSymbolsDialogViewModel(
         return selectedMaterialSymbols.map { materialSymbol ->
             materialSymbolsRepository.getDrawableResourceFileInfo(
                 materialSymbol = materialSymbol,
-                materialSymbolOptions = _materialSymbolOptions,
+                materialSymbolOptions = materialSymbolOptions,
             )
         }
     }
@@ -117,7 +104,7 @@ internal class MaterialSymbolsDialogViewModel(
     fun updateIsFilled(
         updatedIsFilled: Boolean,
     ) {
-        _materialSymbolOptions = _materialSymbolOptions.copy(
+        _materialSymbolOptions = materialSymbolOptions.copy(
             isFilled = updatedIsFilled,
         )
     }
@@ -125,7 +112,7 @@ internal class MaterialSymbolsDialogViewModel(
     fun updateSelectedGrade(
         updatedSelectedGrade: MaterialSymbolsGrade,
     ) {
-        _materialSymbolOptions = _materialSymbolOptions.copy(
+        _materialSymbolOptions = materialSymbolOptions.copy(
             grade = updatedSelectedGrade,
         )
     }
@@ -133,7 +120,7 @@ internal class MaterialSymbolsDialogViewModel(
     fun updateSelectedSize(
         updatedSelectedSize: MaterialSymbolsSize,
     ) {
-        _materialSymbolOptions = _materialSymbolOptions.copy(
+        _materialSymbolOptions = materialSymbolOptions.copy(
             size = updatedSelectedSize,
         )
     }
@@ -141,7 +128,7 @@ internal class MaterialSymbolsDialogViewModel(
     fun updateSelectedStyle(
         updatedSelectedStyle: MaterialSymbolsStyle,
     ) {
-        _materialSymbolOptions = _materialSymbolOptions.copy(
+        _materialSymbolOptions = materialSymbolOptions.copy(
             style = updatedSelectedStyle,
         )
     }
@@ -149,7 +136,7 @@ internal class MaterialSymbolsDialogViewModel(
     fun updateSelectedWeight(
         updatedSelectedWeight: MaterialSymbolsWeight,
     ) {
-        _materialSymbolOptions = _materialSymbolOptions.copy(
+        _materialSymbolOptions = materialSymbolOptions.copy(
             weight = updatedSelectedWeight,
         )
     }

@@ -106,11 +106,7 @@ internal class MaterialSymbolsDialogPanel(
 
     private fun createOptionsPanel(): OptionsPanel {
         return OptionsPanel(
-            initialFilledValue = materialSymbolsDialogViewModel.isFilled,
-            initialGrade = materialSymbolsDialogViewModel.selectedGrade,
-            initialSize = materialSymbolsDialogViewModel.selectedSize,
-            initialStyle = materialSymbolsDialogViewModel.selectedStyle,
-            initialWeight = materialSymbolsDialogViewModel.selectedWeight,
+            materialSymbolOptions = materialSymbolsDialogViewModel.materialSymbolOptions,
             resourcesProvider = resourcesProvider,
             onFilledValueChange = { updatedIsFilled ->
                 materialSymbolsDialogViewModel.updateIsFilled(
