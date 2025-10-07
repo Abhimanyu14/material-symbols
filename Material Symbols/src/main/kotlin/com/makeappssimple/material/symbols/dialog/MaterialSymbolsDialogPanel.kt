@@ -24,7 +24,9 @@ private const val minimumWidth = 700
 
 internal class MaterialSymbolsDialogPanel(
     private val androidDirectoryHelper: AndroidDirectoryHelper,
+    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(),
     private val resourcesProvider: ResourcesProvider,
+    private val svgDocumentCache: SvgDocumentCache = SvgDocumentCache(),
     private val closeDialog: () -> Unit,
     private val runWriteCommandAction: (commandAction: () -> Unit) -> Unit,
     private val showErrorDialog: (errorMessage: String) -> Unit,
@@ -40,9 +42,6 @@ internal class MaterialSymbolsDialogPanel(
     // region data
     private var currentModule: AndroidFacet? = null
     private var currentPreviewMaterialSymbol: MaterialSymbol? = null
-    private val materialSymbolsDialogViewModel: MaterialSymbolsDialogViewModel = MaterialSymbolsDialogViewModel(
-    )
-    private val svgDocumentCache: SvgDocumentCache = SvgDocumentCache()
     // endregion
 
     // region UI elements
