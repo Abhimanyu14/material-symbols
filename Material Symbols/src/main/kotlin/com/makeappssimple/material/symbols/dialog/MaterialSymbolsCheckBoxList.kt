@@ -88,11 +88,6 @@ internal class MaterialSymbolsCheckBoxList(
                 initIconsMap(
                     allIcons = allIcons,
                 )
-                launch(
-                    context = coroutineContext + Dispatchers.Swing,
-                ) {
-                    refreshListPanel()
-                }
             } catch (
                 cancellationException: CancellationException,
             ) {
@@ -123,6 +118,11 @@ internal class MaterialSymbolsCheckBoxList(
                             svgDocument = svgDocument,
                             size = cellIconSize,
                         )
+                        launch(
+                            context = coroutineContext + Dispatchers.Swing,
+                        ) {
+                            refreshListPanel()
+                        }
                     }
                 }
             }
