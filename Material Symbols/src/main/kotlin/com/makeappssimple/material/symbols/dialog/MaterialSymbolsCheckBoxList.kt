@@ -16,8 +16,10 @@ import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
 
 internal class MaterialSymbolsCheckBoxList(
     private val coroutineScope: CoroutineScope,
@@ -66,22 +68,31 @@ internal class MaterialSymbolsCheckBoxList(
         coroutineScope.launch {
             try {
                 val allIcons: List<MaterialSymbol> = materialSymbolsDialogViewModel.getAllIcons()
-                allIcons.forEach { materialSymbol ->
-                    materialSymbolCheckBoxList.addItem(
-                        materialSymbol,
-                        materialSymbol.title,
-                        false,
-                    )
+                launch(
+                    context = coroutineContext + Dispatchers.Swing,
+                ) {
+                    allIcons.forEach { materialSymbol ->
+                        materialSymbolCheckBoxList.addItem(
+                            materialSymbol,
+                            materialSymbol.title,
+                            false,
+                        )
+                    }
+                    hideProgressBar()
+                    val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
+                        border = BorderFactory.createEmptyBorder()
+                    }
+                    add(scrollPane)
+                    refreshListPanel()
                 }
-                hideProgressBar()
-                val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
-                    border = BorderFactory.createEmptyBorder()
-                }
-                add(scrollPane)
                 initIconsMap(
                     allIcons = allIcons,
                 )
-                refreshListPanel()
+                launch(
+                    context = coroutineContext + Dispatchers.Swing,
+                ) {
+                    refreshListPanel()
+                }
             } catch (
                 cancellationException: CancellationException,
             ) {
