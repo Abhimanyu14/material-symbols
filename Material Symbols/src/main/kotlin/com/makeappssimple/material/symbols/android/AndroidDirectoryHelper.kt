@@ -17,6 +17,8 @@ import com.intellij.util.IncorrectOperationException
 import com.makeappssimple.material.symbols.model.DrawableResourceFileInfo
 import org.jetbrains.android.facet.AndroidFacet
 
+private val testModuleSuffices = setOf(".main", ".unitTest", ".androidTest", ".screenshotTest")
+
 /**
  * A helper class to interact with Android project structure.
  * This class should only be instantiated and used when the Android plugin is known to be present.
@@ -26,14 +28,13 @@ internal class AndroidDirectoryHelper(
     private val showErrorDialog: (errorMessage: String) -> Unit,
 ) {
     fun getAndroidFacets(): List<AndroidFacet> {
-        val androidFacets: List<AndroidFacet> = project.modules.mapNotNull {
+        return project.modules.mapNotNull {
             AndroidFacet.getInstance(it)
-        }.filter {
-            !it.module.name.endsWith(".main") &&
-                    !it.module.name.endsWith(".unitTest") &&
-                    !it.module.name.endsWith(".androidTest")
+        }.filter { facet ->
+            testModuleSuffices.none(
+                predicate = facet.module.name::endsWith,
+            )
         }
-        return androidFacets
     }
 
     fun saveDrawableFiles(
