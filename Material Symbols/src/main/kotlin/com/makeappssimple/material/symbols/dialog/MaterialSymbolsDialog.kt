@@ -24,8 +24,8 @@ public class MaterialSymbolsDialog(
     }
 
     override fun doOKAction() {
-        super.doOKAction()
         materialSymbolsDialogPanel?.saveSelectedDrawableResources()
+        super.doOKAction()
     }
 
     override fun dispose() {
