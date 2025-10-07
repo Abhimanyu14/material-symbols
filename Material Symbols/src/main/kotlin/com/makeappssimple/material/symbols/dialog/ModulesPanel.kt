@@ -3,7 +3,6 @@ package com.makeappssimple.material.symbols.dialog
 import com.intellij.openapi.ui.ComboBox
 import com.makeappssimple.material.symbols.resources.ResourcesProvider
 import java.awt.Dimension
-import java.awt.FlowLayout
 import java.awt.event.ItemEvent
 import javax.swing.JLabel
 import javax.swing.JPanel
