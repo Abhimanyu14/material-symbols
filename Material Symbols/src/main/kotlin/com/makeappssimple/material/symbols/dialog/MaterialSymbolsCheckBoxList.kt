@@ -29,6 +29,7 @@ internal class MaterialSymbolsCheckBoxList(
     private val updateOkButtonEnabled: () -> Unit,
     private val onPreviewMaterialSymbolUpdated: (MaterialSymbol) -> Unit,
 ) : JPanel() {
+    private val allIcons: MutableList<MaterialSymbol> = mutableListOf()
     private val progressBar = JProgressBar()
     private val materialSymbolCheckBoxList = CheckBoxList<MaterialSymbol>()
     private val iconsMap: ConcurrentHashMap<MaterialSymbol, Icon> = ConcurrentHashMap()
@@ -67,7 +68,9 @@ internal class MaterialSymbolsCheckBoxList(
         showProgressBar()
         coroutineScope.launch {
             try {
-                val allIcons: List<MaterialSymbol> = materialSymbolsDialogViewModel.getAllIcons()
+                allIcons.addAll(
+                    elements = materialSymbolsDialogViewModel.getAllIcons(),
+                )
                 launch(
                     context = coroutineContext + Dispatchers.Swing,
                 ) {
@@ -85,9 +88,7 @@ internal class MaterialSymbolsCheckBoxList(
                     add(scrollPane)
                     refreshListPanel()
                 }
-                initIconsMap(
-                    allIcons = allIcons,
-                )
+                refreshIconsMap()
             } catch (
                 cancellationException: CancellationException,
             ) {
@@ -101,9 +102,7 @@ internal class MaterialSymbolsCheckBoxList(
         }
     }
 
-    private suspend fun initIconsMap(
-        allIcons: List<MaterialSymbol>,
-    ) {
+    suspend fun refreshIconsMap() {
         coroutineScope {
             allIcons.forEach { materialSymbol ->
                 launch {

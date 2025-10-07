@@ -27,7 +27,8 @@ private const val cacheDirectoryFileName = "material-symbols-icons"
 internal class MaterialSymbolsDialogViewModel() {
     // region data
     var filteredMaterialSymbols: List<MaterialSymbol> = emptyList()
-    val selectedMaterialSymbols: MutableList<MaterialSymbol> = mutableListOf()
+    private val _selectedMaterialSymbols: MutableList<MaterialSymbol> = mutableListOf()
+    val selectedMaterialSymbols: List<MaterialSymbol> = _selectedMaterialSymbols
     private val iconDataSource: IconDataSource = IconDataSourceImpl()
     private var allIcons: List<String> = emptyList()
     private var allMaterialSymbols: List<MaterialSymbol> = emptyList()
@@ -36,11 +37,21 @@ internal class MaterialSymbolsDialogViewModel() {
     // endregion
 
     // region UI state
-    var isFilled: Boolean = DEFAULT_FILLED
-    var selectedGrade: MaterialSymbolsGrade = DEFAULT_GRADE
-    var selectedSize: MaterialSymbolsSize = DEFAULT_SIZE
-    var selectedStyle: MaterialSymbolsStyle = DEFAULT_STYLE
-    var selectedWeight: MaterialSymbolsWeight = DEFAULT_WEIGHT
+    private var _isFilled: Boolean = DEFAULT_FILLED
+    val isFilled: Boolean
+        get() = _isFilled
+    private var _selectedGrade: MaterialSymbolsGrade = DEFAULT_GRADE
+    val selectedGrade: MaterialSymbolsGrade
+        get() = _selectedGrade
+    private var _selectedSize: MaterialSymbolsSize = DEFAULT_SIZE
+    val selectedSize: MaterialSymbolsSize
+        get() = _selectedSize
+    private var _selectedStyle: MaterialSymbolsStyle = DEFAULT_STYLE
+    val selectedStyle: MaterialSymbolsStyle
+        get() = _selectedStyle
+    private var _selectedWeight: MaterialSymbolsWeight = DEFAULT_WEIGHT
+    val selectedWeight: MaterialSymbolsWeight
+        get() = _selectedWeight
     // endregion
 
     suspend fun getAllIcons(): List<MaterialSymbol> {
@@ -115,7 +126,7 @@ internal class MaterialSymbolsDialogViewModel() {
     fun addToSelectedMaterialSymbols(
         materialSymbol: MaterialSymbol,
     ) {
-        selectedMaterialSymbols.add(
+        _selectedMaterialSymbols.add(
             element = materialSymbol,
         )
     }
@@ -123,9 +134,39 @@ internal class MaterialSymbolsDialogViewModel() {
     fun removeFromSelectedMaterialSymbols(
         materialSymbol: MaterialSymbol,
     ) {
-        selectedMaterialSymbols.remove(
+        _selectedMaterialSymbols.remove(
             element = materialSymbol,
         )
+    }
+
+    fun updateIsFilled(
+        updatedIsFilled: Boolean,
+    ) {
+        _isFilled = updatedIsFilled
+    }
+
+    fun updateSelectedGrade(
+        updatedSelectedGrade: MaterialSymbolsGrade,
+    ) {
+        _selectedGrade = updatedSelectedGrade
+    }
+
+    fun updateSelectedSize(
+        updatedSelectedSize: MaterialSymbolsSize,
+    ) {
+        _selectedSize = updatedSelectedSize
+    }
+
+    fun updateSelectedStyle(
+        updatedSelectedStyle: MaterialSymbolsStyle,
+    ) {
+        _selectedStyle = updatedSelectedStyle
+    }
+
+    fun updateSelectedWeight(
+        updatedSelectedWeight: MaterialSymbolsWeight,
+    ) {
+        _selectedWeight = updatedSelectedWeight
     }
 
     private fun createIconUrl(

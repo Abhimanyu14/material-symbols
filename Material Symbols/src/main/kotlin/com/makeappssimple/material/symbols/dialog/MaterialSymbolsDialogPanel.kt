@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.swing.Swing
 import org.jetbrains.android.facet.AndroidFacet
 
 private const val minimumHeight = 600
@@ -109,24 +108,34 @@ internal class MaterialSymbolsDialogPanel(
             initialStyle = materialSymbolsDialogViewModel.selectedStyle,
             initialWeight = materialSymbolsDialogViewModel.selectedWeight,
             resourcesProvider = resourcesProvider,
-            onFilledValueChange = {
-                materialSymbolsDialogViewModel.isFilled = it
+            onFilledValueChange = { updatedIsFilled ->
+                materialSymbolsDialogViewModel.updateIsFilled(
+                    updatedIsFilled = updatedIsFilled,
+                )
                 onOptionsUpdated()
             },
-            onGradeChange = {
-                materialSymbolsDialogViewModel.selectedGrade = it
+            onGradeChange = { updatedSelectedGrade ->
+                materialSymbolsDialogViewModel.updateSelectedGrade(
+                    updatedSelectedGrade = updatedSelectedGrade,
+                )
                 onOptionsUpdated()
             },
-            onSizeChange = {
-                materialSymbolsDialogViewModel.selectedSize = it
+            onSizeChange = { updatedSelectedSize ->
+                materialSymbolsDialogViewModel.updateSelectedSize(
+                    updatedSelectedSize = updatedSelectedSize,
+                )
                 onOptionsUpdated()
             },
-            onStyleChange = {
-                materialSymbolsDialogViewModel.selectedStyle = it
+            onStyleChange = { updatedSelectedStyle ->
+                materialSymbolsDialogViewModel.updateSelectedStyle(
+                    updatedSelectedStyle = updatedSelectedStyle,
+                )
                 onOptionsUpdated()
             },
-            onWeightChange = {
-                materialSymbolsDialogViewModel.selectedWeight = it
+            onWeightChange = { updatedSelectedWeight ->
+                materialSymbolsDialogViewModel.updateSelectedWeight(
+                    updatedSelectedWeight = updatedSelectedWeight,
+                )
                 onOptionsUpdated()
             },
         )
