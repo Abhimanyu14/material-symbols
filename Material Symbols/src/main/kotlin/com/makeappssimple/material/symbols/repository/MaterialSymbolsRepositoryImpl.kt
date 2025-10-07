@@ -3,6 +3,7 @@ package com.makeappssimple.material.symbols.repository
 import com.intellij.openapi.application.PathManager
 import com.makeappssimple.material.symbols.model.DrawableResourceFileInfo
 import com.makeappssimple.material.symbols.model.MaterialSymbol
+import com.makeappssimple.material.symbols.model.MaterialSymbolOptions
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
 import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
 import com.makeappssimple.material.symbols.model.MaterialSymbolsStyle
@@ -60,29 +61,18 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
 
     override suspend fun getIconUrl(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
-        weight: MaterialSymbolsWeight,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): String {
         return withContext(
             context = Dispatchers.Default,
         ) {
             val cacheKey = getMaterialSymbolStateCacheKey(
                 materialSymbol = materialSymbol,
-                isFilled = isFilled,
-                grade = grade,
-                size = size,
-                style = style,
-                weight = weight,
+                materialSymbolOptions = materialSymbolOptions,
             )
             val iconUrl = iconUrlCache[cacheKey] ?: createIconUrl(
                 materialSymbol = materialSymbol,
-                isFilled = isFilled,
-                grade = grade,
-                size = size,
-                style = style,
+                materialSymbolOptions = materialSymbolOptions,
             )
             iconUrlCache[cacheKey] = iconUrl
             iconUrl
@@ -91,27 +81,15 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
 
     override fun getDrawableResourceFileInfo(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
-        weight: MaterialSymbolsWeight,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): DrawableResourceFileInfo {
         val fileContent = getDrawableResourceFileContent(
             materialSymbol = materialSymbol,
-            isFilled = isFilled,
-            grade = grade,
-            size = size,
-            style = style,
-            weight = weight,
+            materialSymbolOptions = materialSymbolOptions,
         )
         val fileName: String = getFileName(
             materialSymbol = materialSymbol,
-            isFilled = isFilled,
-            grade = grade,
-            size = size,
-            style = style,
-            weight = weight,
+            materialSymbolOptions = materialSymbolOptions,
         )
         return DrawableResourceFileInfo(
             content = fileContent,
@@ -121,25 +99,22 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
 
     private fun createIconUrl(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): String {
-        val styleString = "materialsymbols${style.value}"
+        val styleString = "materialsymbols${materialSymbolOptions.style.value}"
         val options = mutableListOf<String>()
-        if (grade != DEFAULT_GRADE) {
+        if (materialSymbolOptions.grade != DEFAULT_GRADE) {
             options.add(
                 element = "grad${
-                    if (grade.value < 0) {
-                        "N${-grade.value}"
+                    if (materialSymbolOptions.grade.value < 0) {
+                        "N${-materialSymbolOptions.grade.value}"
                     } else {
-                        grade.value
+                        materialSymbolOptions.grade.value
                     }
                 }",
             )
         }
-        if (isFilled) {
+        if (materialSymbolOptions.isFilled) {
             options.add(
                 element = "fill1",
             )
@@ -152,7 +127,7 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
             )
         }
         val url =
-            "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${size.value}px.svg"
+            "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${materialSymbolOptions.size.value}px.svg"
         return url
     }
 
@@ -171,19 +146,11 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
 
     private fun getDrawableResourceFileContent(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
-        weight: MaterialSymbolsWeight,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): String {
         val fileUrl = getFileUrl(
             materialSymbol = materialSymbol,
-            isFilled = isFilled,
-            grade = grade,
-            size = size,
-            style = style,
-            weight = weight,
+            materialSymbolOptions = materialSymbolOptions,
         )
         return drawableResourceFileContentCache.getOrPut(
             key = fileUrl,
@@ -196,31 +163,27 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
 
     private fun getFileUrl(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
-        weight: MaterialSymbolsWeight,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): String {
-        val styleString = "materialsymbols${style.value}"
+        val styleString = "materialsymbols${materialSymbolOptions.style.value}"
         val options = mutableListOf<String>()
-        if (weight != DEFAULT_WEIGHT) {
+        if (materialSymbolOptions.weight != DEFAULT_WEIGHT) {
             options.add(
-                element = "wght${weight.value}",
+                element = "wght${materialSymbolOptions.weight.value}",
             )
         }
-        if (grade != DEFAULT_GRADE) {
+        if (materialSymbolOptions.grade != DEFAULT_GRADE) {
             options.add(
                 element = "grad${
-                    if (grade.value < 0) {
-                        "N${-grade.value}"
+                    if (materialSymbolOptions.grade.value < 0) {
+                        "N${-materialSymbolOptions.grade.value}"
                     } else {
-                        grade.value
+                        materialSymbolOptions.grade.value
                     }
                 }",
             )
         }
-        if (isFilled) {
+        if (materialSymbolOptions.isFilled) {
             options.add(
                 element = "fill1",
             )
@@ -233,7 +196,7 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
             )
         }
         val url =
-            "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${size.value}px.xml"
+            "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${materialSymbolOptions.size.value}px.xml"
         return url
     }
 
@@ -253,11 +216,7 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
 
     private fun getFileName(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
-        weight: MaterialSymbolsWeight,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): String {
         val sanitizedFileName = materialSymbol.name
             .lowercase()
@@ -271,19 +230,19 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
                 ),
                 replacement = "",
             )
-        val styleValue = "_${style.value}"
-        val weightValue = if (weight != DEFAULT_WEIGHT) {
-            "_w${weight.value}"
+        val styleValue = "_${materialSymbolOptions.style.value}"
+        val weightValue = if (materialSymbolOptions.weight != DEFAULT_WEIGHT) {
+            "_w${materialSymbolOptions.weight.value}"
         } else {
             ""
         }
-        val filledValue = if (isFilled) {
+        val filledValue = if (materialSymbolOptions.isFilled) {
             "_filled"
         } else {
             ""
         }
-        val gradeValue = if (grade != DEFAULT_GRADE) {
-            grade.value.let {
+        val gradeValue = if (materialSymbolOptions.grade != DEFAULT_GRADE) {
+            materialSymbolOptions.grade.value.let {
                 if (it < 0) {
                     "_gn${-it}"
                 } else {
@@ -293,18 +252,14 @@ internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
         } else {
             ""
         }
-        val sizeValue = "_${size.value}dp"
+        val sizeValue = "_${materialSymbolOptions.size.value}dp"
         return "ic_${sanitizedFileName}${styleValue}${weightValue}${filledValue}${gradeValue}${sizeValue}.xml"
     }
 
     private fun getMaterialSymbolStateCacheKey(
         materialSymbol: MaterialSymbol,
-        isFilled: Boolean,
-        grade: MaterialSymbolsGrade,
-        size: MaterialSymbolsSize,
-        style: MaterialSymbolsStyle,
-        weight: MaterialSymbolsWeight,
+        materialSymbolOptions: MaterialSymbolOptions,
     ): String {
-        return "${materialSymbol.name}:${style.value}:${weight.value}::${isFilled}${grade.value}:${size.value}"
+        return "${materialSymbol.name}:${materialSymbolOptions.style.value}:${materialSymbolOptions.weight.value}:${materialSymbolOptions.isFilled}:${materialSymbolOptions.grade.value}:${materialSymbolOptions.size.value}"
     }
 }

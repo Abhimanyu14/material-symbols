@@ -2,6 +2,7 @@ package com.makeappssimple.material.symbols.viewmodel
 
 import com.makeappssimple.material.symbols.model.DrawableResourceFileInfo
 import com.makeappssimple.material.symbols.model.MaterialSymbol
+import com.makeappssimple.material.symbols.model.MaterialSymbolOptions
 import com.makeappssimple.material.symbols.model.MaterialSymbolsGrade
 import com.makeappssimple.material.symbols.model.MaterialSymbolsSize
 import com.makeappssimple.material.symbols.model.MaterialSymbolsStyle
@@ -27,21 +28,28 @@ internal class MaterialSymbolsDialogViewModel(
     // endregion
 
     // region UI state
-    private var _isFilled: Boolean = DEFAULT_FILLED
+    private var _materialSymbolOptions: MaterialSymbolOptions = MaterialSymbolOptions(
+        isFilled = DEFAULT_FILLED,
+        grade = DEFAULT_GRADE,
+        size = DEFAULT_SIZE,
+        style = DEFAULT_STYLE,
+        weight = DEFAULT_WEIGHT,
+    )
+
     val isFilled: Boolean
-        get() = _isFilled
-    private var _selectedGrade: MaterialSymbolsGrade = DEFAULT_GRADE
+        get() = _materialSymbolOptions.isFilled
+
     val selectedGrade: MaterialSymbolsGrade
-        get() = _selectedGrade
-    private var _selectedSize: MaterialSymbolsSize = DEFAULT_SIZE
+        get() = _materialSymbolOptions.grade
+
     val selectedSize: MaterialSymbolsSize
-        get() = _selectedSize
-    private var _selectedStyle: MaterialSymbolsStyle = DEFAULT_STYLE
+        get() = _materialSymbolOptions.size
+
     val selectedStyle: MaterialSymbolsStyle
-        get() = _selectedStyle
-    private var _selectedWeight: MaterialSymbolsWeight = DEFAULT_WEIGHT
+        get() = _materialSymbolOptions.style
+
     val selectedWeight: MaterialSymbolsWeight
-        get() = _selectedWeight
+        get() = _materialSymbolOptions.weight
     // endregion
 
     suspend fun getAllIcons(): List<MaterialSymbol> {
@@ -77,11 +85,7 @@ internal class MaterialSymbolsDialogViewModel(
     ): String {
         return materialSymbolsRepository.getIconUrl(
             materialSymbol = materialSymbol,
-            isFilled = isFilled,
-            grade = selectedGrade,
-            size = selectedSize,
-            style = selectedStyle,
-            weight = selectedWeight,
+            materialSymbolOptions = _materialSymbolOptions,
         )
     }
 
@@ -89,11 +93,7 @@ internal class MaterialSymbolsDialogViewModel(
         return selectedMaterialSymbols.map { materialSymbol ->
             materialSymbolsRepository.getDrawableResourceFileInfo(
                 materialSymbol = materialSymbol,
-                isFilled = isFilled,
-                grade = selectedGrade,
-                size = selectedSize,
-                style = selectedStyle,
-                weight = selectedWeight,
+                materialSymbolOptions = _materialSymbolOptions,
             )
         }
     }
@@ -117,30 +117,40 @@ internal class MaterialSymbolsDialogViewModel(
     fun updateIsFilled(
         updatedIsFilled: Boolean,
     ) {
-        _isFilled = updatedIsFilled
+        _materialSymbolOptions = _materialSymbolOptions.copy(
+            isFilled = updatedIsFilled,
+        )
     }
 
     fun updateSelectedGrade(
         updatedSelectedGrade: MaterialSymbolsGrade,
     ) {
-        _selectedGrade = updatedSelectedGrade
+        _materialSymbolOptions = _materialSymbolOptions.copy(
+            grade = updatedSelectedGrade,
+        )
     }
 
     fun updateSelectedSize(
         updatedSelectedSize: MaterialSymbolsSize,
     ) {
-        _selectedSize = updatedSelectedSize
+        _materialSymbolOptions = _materialSymbolOptions.copy(
+            size = updatedSelectedSize,
+        )
     }
 
     fun updateSelectedStyle(
         updatedSelectedStyle: MaterialSymbolsStyle,
     ) {
-        _selectedStyle = updatedSelectedStyle
+        _materialSymbolOptions = _materialSymbolOptions.copy(
+            style = updatedSelectedStyle,
+        )
     }
 
     fun updateSelectedWeight(
         updatedSelectedWeight: MaterialSymbolsWeight,
     ) {
-        _selectedWeight = updatedSelectedWeight
+        _materialSymbolOptions = _materialSymbolOptions.copy(
+            weight = updatedSelectedWeight,
+        )
     }
 }
