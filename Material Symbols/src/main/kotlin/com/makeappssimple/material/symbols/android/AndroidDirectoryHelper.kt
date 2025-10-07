@@ -8,10 +8,12 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import com.intellij.util.IncorrectOperationException
 import com.makeappssimple.material.symbols.model.DrawableResourceFileInfo
 import org.jetbrains.android.facet.AndroidFacet
 
@@ -34,24 +36,37 @@ internal class AndroidDirectoryHelper(
         return androidFacets
     }
 
-    fun saveDrawableFile(
-        drawableResourceFileInfo: DrawableResourceFileInfo,
+    fun saveDrawableFiles(
+        drawableResourceFileInfoList: List<DrawableResourceFileInfo>,
         selectedModule: AndroidFacet,
     ) {
         val drawableDirectory: PsiDirectory = getDrawableDirectory(
             selectedModule = selectedModule,
         ) ?: return
-        val drawableFile: PsiFile = drawableDirectory.createFile(drawableResourceFileInfo.name)
         try {
-            WriteCommandAction.runWriteCommandAction(project) {
-                val psiDocumentManager = PsiDocumentManager.getInstance(project)
-                val document = psiDocumentManager.getDocument(drawableFile)
-                    ?: throw IllegalStateException("Unable to get document for file")
-                document.setText(drawableResourceFileInfo.content)
-                psiDocumentManager.commitDocument(document)
-                drawableFile.virtualFile?.let {
-                    FileEditorManager.getInstance(project).openFile(it, true)
+            val createdFiles = mutableListOf<VirtualFile>()
+            for (drawableResourceFileInfo in drawableResourceFileInfoList) {
+                val drawableFile: PsiFile = try {
+                    drawableDirectory.createFile(drawableResourceFileInfo.name)
+                } catch (
+                    incorrectOperationException: IncorrectOperationException,
+                ) {
+                    showErrorDialog("Error downloading or saving file: ${incorrectOperationException.message}")
+                    null
+                } ?: continue
+                WriteCommandAction.runWriteCommandAction(project) {
+                    val psiDocumentManager = PsiDocumentManager.getInstance(project)
+                    val document = psiDocumentManager.getDocument(drawableFile)
+                        ?: throw IllegalStateException("Unable to get document for file")
+                    document.setText(drawableResourceFileInfo.content)
+                    psiDocumentManager.commitDocument(document)
+                    drawableFile.virtualFile?.let { virtualFile: VirtualFile ->
+                        createdFiles.add(virtualFile)
+                    }
                 }
+            }
+            if (createdFiles.isNotEmpty()) {
+                FileEditorManager.getInstance(project).openFile(createdFiles.first(), true)
             }
         } catch (
             exception: Exception,

@@ -54,28 +54,27 @@ internal class MaterialSymbolsDialogPanel(
     }
 
     fun saveSelectedDrawableResources() {
-        materialSymbolsDialogViewModel.getSelectedMaterialSymbolsDrawableResourceFileInfoList()
-            .forEach { drawableResourceFileInfo ->
-                try {
-                    runWriteCommandAction {
-                        currentModule?.let {
-                            androidDirectoryHelper.saveDrawableFile(
-                                drawableResourceFileInfo = drawableResourceFileInfo,
-                                selectedModule = it,
-                            )
-                        }
-                    }
-                } catch (
-                    cancellationException: CancellationException,
-                ) {
-                    throw cancellationException
-                } catch (
-                    exception: Exception,
-                ) {
-                    showErrorDialog("${resourcesProvider.downloadErrorPrefix} ${exception.message}")
-                    closeDialog()
+        currentModule?.let { selectedModule ->
+            val drawableResourceFileInfoList =
+                materialSymbolsDialogViewModel.getSelectedMaterialSymbolsDrawableResourceFileInfoList()
+            try {
+                runWriteCommandAction {
+                    androidDirectoryHelper.saveDrawableFiles(
+                        drawableResourceFileInfoList = drawableResourceFileInfoList,
+                        selectedModule = selectedModule,
+                    )
                 }
+            } catch (
+                cancellationException: CancellationException,
+            ) {
+                throw cancellationException
+            } catch (
+                _: Exception,
+            ) {
+                showErrorDialog(resourcesProvider.downloadErrorPrefix)
+                closeDialog()
             }
+        }
     }
 
     fun dispose() {
@@ -95,8 +94,8 @@ internal class MaterialSymbolsDialogPanel(
 
     private fun fetchData() {
         materialSymbolsCheckBoxList.loadAllIcons(
-            onError = { exception ->
-                showErrorDialog("${resourcesProvider.loadErrorPrefix} ${exception.message}")
+            onError = { _ ->
+                showErrorDialog(resourcesProvider.loadErrorPrefix)
                 closeDialog()
             },
         )
