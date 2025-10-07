@@ -30,7 +30,7 @@ internal class MaterialSymbolsDialogPanel(
 ) : JPanel() {
     // region coroutine
     private val coroutineScope: CoroutineScope = CoroutineScope(
-        context = SupervisorJob() + Dispatchers.Swing,
+        context = SupervisorJob() + Dispatchers.IO,
     )
     // endregion
 

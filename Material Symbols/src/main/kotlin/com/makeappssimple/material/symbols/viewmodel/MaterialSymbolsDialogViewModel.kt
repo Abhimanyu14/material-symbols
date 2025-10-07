@@ -91,7 +91,7 @@ internal class MaterialSymbolsDialogViewModel() {
         materialSymbol: MaterialSymbol,
     ): String {
         return withContext(
-            Dispatchers.Default,
+            context = Dispatchers.Default,
         ) {
             val cacheKey = getMaterialSymbolStateCacheKey(
                 materialSymbol = materialSymbol,

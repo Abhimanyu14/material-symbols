@@ -67,7 +67,11 @@ internal class MaterialSymbolsCheckBoxList(
             try {
                 val allIcons: List<MaterialSymbol> = materialSymbolsDialogViewModel.getAllIcons()
                 allIcons.forEach { materialSymbol ->
-                    materialSymbolCheckBoxList.addItem(materialSymbol, materialSymbol.title, false)
+                    materialSymbolCheckBoxList.addItem(
+                        materialSymbol,
+                        materialSymbol.title,
+                        false,
+                    )
                 }
                 hideProgressBar()
                 val scrollPane = JScrollPane(materialSymbolCheckBoxList).apply {
