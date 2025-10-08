@@ -30,7 +30,7 @@
 
     <actions>
         <action id="com.makeappssimple.material.symbols.action.MaterialSymbolsAction"
-                class="com.makeappssimple.material.symbols.action.MaterialSymbolsAction"
+                class="com.makeappssimple.material.symbols.presentation.action.MaterialSymbolsAction"
                 text="Material Symbols"
                 description="Material symbols">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
