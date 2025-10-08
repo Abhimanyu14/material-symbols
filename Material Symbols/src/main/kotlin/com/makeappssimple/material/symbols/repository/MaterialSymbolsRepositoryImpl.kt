@@ -25,8 +25,9 @@ internal val DEFAULT_WEIGHT = MaterialSymbolsWeight.W400
 
 private const val cacheDirectoryFileName = "material-symbols-icons"
 
-internal class MaterialSymbolsRepositoryImpl : MaterialSymbolsRepository {
-    private val iconDataSource: IconDataSource = IconDataSourceImpl()
+internal class MaterialSymbolsRepositoryImpl(
+    private val iconDataSource: IconDataSource = IconDataSourceImpl(),
+) : MaterialSymbolsRepository {
     private var allIcons: List<String> = emptyList()
     private var allMaterialSymbols: List<MaterialSymbol> = emptyList()
     private val drawableResourceFileContentCache: MutableMap<String, String> = mutableMapOf()
