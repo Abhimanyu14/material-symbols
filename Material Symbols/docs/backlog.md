@@ -6,10 +6,9 @@
 
 ## Repository Layer (`MaterialSymbolsRepositoryImpl`)
 
-1. **Separation of Concerns - URL Construction and File Naming:** Extract URL construction (`createIconUrl`, `getFileUrl`) and file naming (`getFileName`) logic into a dedicated utility class (e.g., `MaterialSymbolUrlBuilder`). This makes the repository more focused on data access.
-2. **Caching Strategy:** Consider a more robust caching solution (e.g., LRU cache, disk cache) for `drawableResourceFileContentCache` and `iconUrlCache` if persistence or larger scale is needed. Implement a clear cache invalidation strategy.
-3. **Error Handling:** Add robust error handling (e.g., `try-catch`, `Result` types) to `fetchDrawableResourceFileContent` for network operations to gracefully manage failures.
-4. **Immutability:** Where possible, make `allIcons` and `allMaterialSymbols` `val` and initialize them once, or use immutable data structures for updates.
+1. **Caching Strategy:** Consider a more robust caching solution (e.g., LRU cache, disk cache) for `drawableResourceFileContentCache` and `iconUrlCache` if persistence or larger scale is needed. Implement a clear cache invalidation strategy.
+2. **Error Handling:** Add robust error handling (e.g., `try-catch`, `Result` types) to `fetchDrawableResourceFileContent` for network operations to gracefully manage failures.
+3. **Immutability:** Where possible, make `allIcons` and `allMaterialSymbols` `val` and initialize them once, or use immutable data structures for updates.
 
 ## Network Layer (`IconDataSourceImpl`, `IconFetcherImpl`)
 
