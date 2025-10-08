@@ -20,3 +20,5 @@ internal enum class MaterialSymbolsSize(
         return "$value dp"
     }
 }
+
+internal val DEFAULT_MATERIAL_SYMBOL_SIZE = MaterialSymbolsSize.S24

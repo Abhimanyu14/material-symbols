@@ -1,10 +1,10 @@
 package com.makeappssimple.material.symbols.data.repository
 
 import com.intellij.openapi.application.PathManager
-import com.makeappssimple.material.symbols.common.DEFAULT_GRADE
-import com.makeappssimple.material.symbols.common.DEFAULT_WEIGHT
 import com.makeappssimple.material.symbols.data.network.IconDataSource
 import com.makeappssimple.material.symbols.data.network.IconDataSourceImpl
+import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_GRADE
+import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_WEIGHT
 import com.makeappssimple.material.symbols.domain.model.DrawableResourceFileInfo
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbol
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbolOptions
@@ -95,7 +95,7 @@ internal class MaterialSymbolsRepositoryImpl(
     ): String {
         val styleString = "materialsymbols${materialSymbolOptions.style.value}"
         val options = mutableListOf<String>()
-        if (materialSymbolOptions.grade != DEFAULT_GRADE) {
+        if (materialSymbolOptions.grade != DEFAULT_MATERIAL_SYMBOL_GRADE) {
             options.add(
                 element = "grad${
                     if (materialSymbolOptions.grade.value < 0) {
@@ -159,12 +159,12 @@ internal class MaterialSymbolsRepositoryImpl(
     ): String {
         val styleString = "materialsymbols${materialSymbolOptions.style.value}"
         val options = mutableListOf<String>()
-        if (materialSymbolOptions.weight != DEFAULT_WEIGHT) {
+        if (materialSymbolOptions.weight != DEFAULT_MATERIAL_SYMBOL_WEIGHT) {
             options.add(
                 element = "wght${materialSymbolOptions.weight.value}",
             )
         }
-        if (materialSymbolOptions.grade != DEFAULT_GRADE) {
+        if (materialSymbolOptions.grade != DEFAULT_MATERIAL_SYMBOL_GRADE) {
             options.add(
                 element = "grad${
                     if (materialSymbolOptions.grade.value < 0) {
@@ -223,7 +223,7 @@ internal class MaterialSymbolsRepositoryImpl(
                 replacement = "",
             )
         val styleValue = "_${materialSymbolOptions.style.value}"
-        val weightValue = if (materialSymbolOptions.weight != DEFAULT_WEIGHT) {
+        val weightValue = if (materialSymbolOptions.weight != DEFAULT_MATERIAL_SYMBOL_WEIGHT) {
             "_w${materialSymbolOptions.weight.value}"
         } else {
             ""
@@ -233,7 +233,7 @@ internal class MaterialSymbolsRepositoryImpl(
         } else {
             ""
         }
-        val gradeValue = if (materialSymbolOptions.grade != DEFAULT_GRADE) {
+        val gradeValue = if (materialSymbolOptions.grade != DEFAULT_MATERIAL_SYMBOL_GRADE) {
             materialSymbolOptions.grade.value.let {
                 if (it < 0) {
                     "_gn${-it}"

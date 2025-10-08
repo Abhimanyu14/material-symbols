@@ -17,3 +17,5 @@ internal enum class MaterialSymbolsGrade(
         return value.toString()
     }
 }
+
+internal val DEFAULT_MATERIAL_SYMBOL_GRADE = MaterialSymbolsGrade.GRADE_0

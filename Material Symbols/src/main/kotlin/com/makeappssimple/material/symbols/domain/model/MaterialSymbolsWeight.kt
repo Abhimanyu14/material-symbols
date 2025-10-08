@@ -29,3 +29,5 @@ internal enum class MaterialSymbolsWeight(
         return value.toString()
     }
 }
+
+internal val DEFAULT_MATERIAL_SYMBOL_WEIGHT = MaterialSymbolsWeight.W400

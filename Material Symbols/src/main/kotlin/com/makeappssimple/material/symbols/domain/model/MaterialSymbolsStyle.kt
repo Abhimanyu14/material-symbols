@@ -21,3 +21,5 @@ internal enum class MaterialSymbolsStyle(
             }
     }
 }
+
+internal val DEFAULT_MATERIAL_SYMBOL_STYLE = MaterialSymbolsStyle.ROUNDED

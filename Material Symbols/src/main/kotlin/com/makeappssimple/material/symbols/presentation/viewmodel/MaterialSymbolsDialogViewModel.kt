@@ -1,12 +1,12 @@
 package com.makeappssimple.material.symbols.presentation.viewmodel
 
-import com.makeappssimple.material.symbols.common.DEFAULT_FILLED
-import com.makeappssimple.material.symbols.common.DEFAULT_GRADE
-import com.makeappssimple.material.symbols.common.DEFAULT_SIZE
-import com.makeappssimple.material.symbols.common.DEFAULT_STYLE
-import com.makeappssimple.material.symbols.common.DEFAULT_WEIGHT
+import com.makeappssimple.material.symbols.common.DEFAULT_MATERIAL_SYMBOL_FILLED
 import com.makeappssimple.material.symbols.data.repository.MaterialSymbolsRepository
 import com.makeappssimple.material.symbols.data.repository.MaterialSymbolsRepositoryImpl
+import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_GRADE
+import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_SIZE
+import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_STYLE
+import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_WEIGHT
 import com.makeappssimple.material.symbols.domain.model.DrawableResourceFileInfo
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbol
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbolOptions
@@ -29,11 +29,11 @@ internal class MaterialSymbolsDialogViewModel(
 
     // region UI state
     private var _materialSymbolOptions: MaterialSymbolOptions = MaterialSymbolOptions(
-        isFilled = DEFAULT_FILLED,
-        grade = DEFAULT_GRADE,
-        size = DEFAULT_SIZE,
-        style = DEFAULT_STYLE,
-        weight = DEFAULT_WEIGHT,
+        isFilled = DEFAULT_MATERIAL_SYMBOL_FILLED,
+        grade = DEFAULT_MATERIAL_SYMBOL_GRADE,
+        size = DEFAULT_MATERIAL_SYMBOL_SIZE,
+        style = DEFAULT_MATERIAL_SYMBOL_STYLE,
+        weight = DEFAULT_MATERIAL_SYMBOL_WEIGHT,
     )
     val materialSymbolOptions: MaterialSymbolOptions
         get() = _materialSymbolOptions
