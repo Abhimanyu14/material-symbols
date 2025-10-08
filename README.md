@@ -1,5 +1,5 @@
 <a href="https://opensource.org/licenses/Apache-2.0" target="_blank"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
-<a href="https://github.com/Abhimanyu14/material-symbols/stargazers" target="_blank"><img alt="License" src="https://img.shields.io/github/stars/Abhimanyu14/emoji-core?style=social"/></a>
+<a href="https://github.com/Abhimanyu14/material-symbols/stargazers" target="_blank"><img alt="License" src="https://img.shields.io/github/stars/Abhimanyu14/material-symbols?style=social"/></a>
 <a href="https://github.com/Abhimanyu14/material-symbols/fork" target="_blank"><img alt="License" src="https://img.shields.io/github/forks/Abhimanyu14/material-symbols?logo=github&style=social"/></a>
 
 # Material Symbols
