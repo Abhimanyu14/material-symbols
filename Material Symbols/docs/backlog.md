@@ -14,12 +14,11 @@
 
 1. **Network Abstraction:** Leverage a modern network library (like Retrofit, given OkHttp is already present) to define API interfaces, simplifying network requests and error handling.
 2. **Explicit Error Handling:** Use Kotlin's `Result` type to explicitly represent success or failure, improving error handling clarity.
-3. **Configuration:** Externalize hardcoded URLs into a configuration file or `Constants` object for better maintainability.
-4. **Coroutine Usage:** Prefer `withContext` and `async/await` with a proper network library over manual `suspendCoroutine` for cleaner asynchronous code.
-5. **Robust Caching:** Ensure the caching mechanism in `IconFetcherImpl` is robust, handles invalidation, and is well-documented, potentially using a dedicated caching solution for persistence.
-6. **Centralized OkHttpClient:** Create a single, reusable `OkHttpClient` instance rather than instantiating it per `fetchIconData` call for performance and resource management.
-7. **Coroutine-based Asynchronous Operations:** Refactor the `OkHttpClient.enqueue` callback into a suspend function using `suspendCancellableCoroutine` for more idiomatic and readable asynchronous Kotlin code.
-8. **Robust Error Handling and Response Parsing:**
+3. **Coroutine Usage:** Prefer `withContext` and `async/await` with a proper network library over manual `suspendCoroutine` for cleaner asynchronous code.
+4. **Robust Caching:** Ensure the caching mechanism in `IconFetcherImpl` is robust, handles invalidation, and is well-documented, potentially using a dedicated caching solution for persistence.
+5. **Centralized OkHttpClient:** Create a single, reusable `OkHttpClient` instance rather than instantiating it per `fetchIconData` call for performance and resource management.
+6. **Coroutine-based Asynchronous Operations:** Refactor the `OkHttpClient.enqueue` callback into a suspend function using `suspendCancellableCoroutine` for more idiomatic and readable asynchronous Kotlin code.
+7. **Robust Error Handling and Response Parsing:**
    1. Explicitly check `response.isSuccessful` and propagate network errors via `onFetchFailure`.
    2. Improve handling of `response.body` to prevent `null` issues.
    3. Consider direct use of `kotlinx.serialization` for structured response parsing.
