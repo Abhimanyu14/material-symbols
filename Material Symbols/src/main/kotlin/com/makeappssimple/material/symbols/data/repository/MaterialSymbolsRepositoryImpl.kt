@@ -1,27 +1,18 @@
 package com.makeappssimple.material.symbols.data.repository
 
 import com.intellij.openapi.application.PathManager
+import com.makeappssimple.material.symbols.common.DEFAULT_GRADE
+import com.makeappssimple.material.symbols.common.DEFAULT_WEIGHT
 import com.makeappssimple.material.symbols.data.network.IconDataSource
 import com.makeappssimple.material.symbols.data.network.IconDataSourceImpl
 import com.makeappssimple.material.symbols.domain.model.DrawableResourceFileInfo
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbol
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbolOptions
-import com.makeappssimple.material.symbols.domain.model.MaterialSymbolsGrade
-import com.makeappssimple.material.symbols.domain.model.MaterialSymbolsSize
-import com.makeappssimple.material.symbols.domain.model.MaterialSymbolsStyle
-import com.makeappssimple.material.symbols.domain.model.MaterialSymbolsWeight
 import java.io.BufferedInputStream
 import java.io.File
 import java.net.URI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-// Default values for URL construction
-internal const val DEFAULT_FILLED = false
-internal val DEFAULT_GRADE = MaterialSymbolsGrade.GRADE_0
-internal val DEFAULT_SIZE = MaterialSymbolsSize.S24
-internal val DEFAULT_STYLE = MaterialSymbolsStyle.ROUNDED
-internal val DEFAULT_WEIGHT = MaterialSymbolsWeight.W400
 
 private const val cacheDirectoryFileName = "material-symbols-icons"
 

@@ -1,10 +1,10 @@
 package com.makeappssimple.material.symbols.presentation.viewmodel
 
-import com.makeappssimple.material.symbols.data.repository.DEFAULT_FILLED
-import com.makeappssimple.material.symbols.data.repository.DEFAULT_GRADE
-import com.makeappssimple.material.symbols.data.repository.DEFAULT_SIZE
-import com.makeappssimple.material.symbols.data.repository.DEFAULT_STYLE
-import com.makeappssimple.material.symbols.data.repository.DEFAULT_WEIGHT
+import com.makeappssimple.material.symbols.common.DEFAULT_FILLED
+import com.makeappssimple.material.symbols.common.DEFAULT_GRADE
+import com.makeappssimple.material.symbols.common.DEFAULT_SIZE
+import com.makeappssimple.material.symbols.common.DEFAULT_STYLE
+import com.makeappssimple.material.symbols.common.DEFAULT_WEIGHT
 import com.makeappssimple.material.symbols.data.repository.MaterialSymbolsRepository
 import com.makeappssimple.material.symbols.data.repository.MaterialSymbolsRepositoryImpl
 import com.makeappssimple.material.symbols.domain.model.DrawableResourceFileInfo
