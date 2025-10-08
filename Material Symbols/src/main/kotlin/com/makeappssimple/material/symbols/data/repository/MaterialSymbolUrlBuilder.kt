@@ -1,5 +1,6 @@
 package com.makeappssimple.material.symbols.data.repository
 
+import com.makeappssimple.material.symbols.common.MATERIAL_SYMBOLS_ASSET_BASE_URL
 import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_GRADE
 import com.makeappssimple.material.symbols.domain.model.DEFAULT_MATERIAL_SYMBOL_WEIGHT
 import com.makeappssimple.material.symbols.domain.model.MaterialSymbol
@@ -36,7 +37,7 @@ internal object MaterialSymbolUrlBuilder {
             )
         }
         val url =
-            "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${materialSymbolOptions.size.value}px.svg"
+            "${MATERIAL_SYMBOLS_ASSET_BASE_URL}${styleString}/${materialSymbol.name}/${optionsString}/${materialSymbolOptions.size.value}px.svg"
         return url
     }
 
@@ -75,7 +76,7 @@ internal object MaterialSymbolUrlBuilder {
             )
         }
         val url =
-            "https://fonts.gstatic.com/s/i/short-term/release/${styleString}/${materialSymbol.name}/${optionsString}/${materialSymbolOptions.size.value}px.xml"
+            "${MATERIAL_SYMBOLS_ASSET_BASE_URL}${styleString}/${materialSymbol.name}/${optionsString}/${materialSymbolOptions.size.value}px.xml"
         return url
     }
 

@@ -1,5 +1,6 @@
 package com.makeappssimple.material.symbols.data.network
 
+import com.makeappssimple.material.symbols.common.MATERIAL_SYMBOLS_METADATA_URL
 import java.io.File
 import java.io.IOException
 import kotlin.coroutines.resume
@@ -15,7 +16,7 @@ internal class IconDataSourceImpl : IconDataSource {
         )
         return suspendCoroutine { continuation ->
             iconFetcher.fetchIconData(
-                url = "https://fonts.google.com/metadata/icons?key=material_symbols&incomplete=true",
+                url = MATERIAL_SYMBOLS_METADATA_URL,
                 callback = object : IconFetchCallback {
                     override fun onFetchSuccess(
                         icons: List<String>,
