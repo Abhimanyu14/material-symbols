@@ -19,7 +19,10 @@ internal class ModulesPanel(
     }
 
     override fun getMaximumSize(): Dimension {
-        return Dimension(super.getMaximumSize().width, preferredSize.height)
+        return Dimension(
+            super.getMaximumSize().width,
+            preferredSize.height,
+        )
     }
 
     private fun initModuleComboBoxUI() {

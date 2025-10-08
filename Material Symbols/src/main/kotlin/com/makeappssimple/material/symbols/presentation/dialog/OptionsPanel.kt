@@ -34,7 +34,10 @@ internal class OptionsPanel(
     }
 
     override fun getMaximumSize(): Dimension {
-        return Dimension(super.getMaximumSize().width, preferredSize.height)
+        return Dimension(
+            super.getMaximumSize().width,
+            preferredSize.height,
+        )
     }
 
     private fun initFilledCheckBoxUI() {

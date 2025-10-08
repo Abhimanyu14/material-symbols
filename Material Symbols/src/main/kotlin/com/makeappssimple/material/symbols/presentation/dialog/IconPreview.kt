@@ -15,7 +15,10 @@ internal class IconPreview() : JLabel() {
     }
 
     override fun getMaximumSize(): Dimension {
-        return Dimension(super.getMaximumSize().width, preferredSize.height)
+        return Dimension(
+            super.getMaximumSize().width,
+            preferredSize.height,
+        )
     }
 
     fun updateIcon(
