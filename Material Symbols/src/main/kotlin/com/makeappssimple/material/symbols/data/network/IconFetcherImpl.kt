@@ -19,22 +19,24 @@ internal class IconFetcherImpl(
     private val cacheFile: File? = null,
     private val iconParser: IconParser = IconParserImpl(),
 ) : IconFetcher {
-    override fun fetchIconData(
-        callback: IconFetchCallback,
-        url: String,
-    ) {
-        val okHttpClientBuilder = OkHttpClient()
+    private val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient()
             .newBuilder()
             .cache(
                 cache = cacheFile?.run {
                     Cache(
-                        directory = cacheFile,
+                        directory = this,
                         maxSize = IconFetcherImplConstants.FIVE_MB_IN_BYTES,
                     )
                 },
             )
+            .build()
+    }
 
-        val okHttpClient = okHttpClientBuilder.build()
+    override fun fetchIconData(
+        callback: IconFetchCallback,
+        url: String,
+    ) {
         val request = Request.Builder()
             .cacheControl(
                 cacheControl = CacheControl.Builder()
@@ -73,7 +75,7 @@ internal class IconFetcherImpl(
                     ) {
                         callback.onFetchSuccess(
                             icons = iconParser.parseIconData(
-                                data = response.body?.string().orEmpty(),
+                                data = response.body.string(),
                             ),
                         )
                     }
